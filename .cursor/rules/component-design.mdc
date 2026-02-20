@@ -1,0 +1,19 @@
+---
+description: React component size, naming, data flow, and custom hooks
+globs:
+  - "resources/js/**/*.tsx"
+alwaysApply: false
+---
+
+# Component Design
+
+- **Small and focused** — one component, one responsibility. Split when logic exceeds ~80 lines or JSX ~100 lines.
+- **Naming** — name after what it represents (e.g. `PostCard`), not appearance (`CardWithShadow`).
+- **Imports** — use the `@/` path alias for components, hooks, lib, and types (e.g. `import { X } from "@/components/..."`), not relative paths like `../../`.
+- **No raw API in components** — always use a custom hook for data/API.
+- **Reuse** — if the same markup appears in more than one place, extract it into its own component.
+- **Separation** — split layout/structural components from logic (e.g. `PostList` for layout, `usePosts` for data).
+- **Data flow** — pass data down via props, communicate up via callbacks. Keep it explicit and traceable.
+- **Avoid prop drilling** — if passing props more than 2 levels deep, lift state up or use a custom hook.
+- **Shared data** — if multiple components need the same data, lift state to the nearest common parent.
+- **Custom hooks** — prefix with `use` (e.g. `useAuth`, `usePosts`) and place in `hooks/`.

@@ -1,0 +1,14 @@
+---
+description: Inertia pages, props, and usePage usage
+globs:
+  - "resources/js/Pages/**/*.tsx"
+alwaysApply: false
+---
+
+# Inertia Patterns
+
+- **Pages** — live in `resources/js/Pages/` and are the only components that receive Inertia props directly.
+- **Lean pages** — keep Page components thin; move logic into hooks and UI into smaller components.
+- **Prefer server data** — never fetch client-side what the controller can pass via Inertia props.
+- **usePage** — use only in Page components or in dedicated hooks that wrap it, not deep in the tree.
+- **Shared data** — access auth, flash messages, etc. via a dedicated hook that wraps `usePage`, not by calling `usePage` in many places.

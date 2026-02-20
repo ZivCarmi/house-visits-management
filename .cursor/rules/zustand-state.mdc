@@ -1,0 +1,16 @@
+---
+description: Zustand store structure, selection, and when to use it
+globs:
+  - "resources/js/**/*.ts*"
+alwaysApply: false
+---
+
+# State Management (Zustand)
+
+- **Use sparingly** — only for truly global or cross-cutting state. Prefer local state and props first.
+- **One domain per store** — e.g. `useAuthStore`, `useCartStore`. Avoid one giant store.
+- **Location** — one file per store in a `stores/` directory.
+- **Never use store in JSX directly** — always consume via a custom hook that selects only what's needed.
+- **Select a slice** — select only the state you need to avoid unnecessary re-renders (e.g. `useAuthStore(state => state.user)`, not the whole store).
+- **Actions in the store** — keep actions next to the state they manage; define them inside the store, not in components or hooks.
+- **No Inertia data in Zustand** — do not put Inertia-provided data or server-driven filters/search/sort state in Zustand; use Inertia's router to push query params and let Laravel handle it server-side.
