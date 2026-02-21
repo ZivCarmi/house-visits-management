@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import type { Patient, PaginatedPatients } from "@/types/patient";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
     Pagination,
     PaginationContent,
@@ -13,7 +11,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { DataTable } from "./DataTable";
 import { getPatientColumns } from "./columns";
 import { usePatientListNavigation } from "@/hooks/usePatientListNavigation";
-import { digitsOnly } from "@/lib/utils";
 
 const SORT_COLUMNS = ["last_visit_date", "next_visit_date"] as const;
 type SortColumn = (typeof SORT_COLUMNS)[number];
@@ -28,6 +25,7 @@ interface PatientTableProps {
     search?: string;
     sort_column?: string;
     sort_direction?: string;
+    filter?: string;
 }
 
 export function PatientTable({
@@ -35,11 +33,10 @@ export function PatientTable({
     search = "",
     sort_column = "next_visit_date",
     sort_direction = "desc",
+    filter = "all",
 }: PatientTableProps) {
     const { navigateWithFilters } = usePatientListNavigation();
 
-    const [searchInput, setSearchInput] = useState(() => digitsOnly(search));
-    const lastSentSearch = useRef(digitsOnly(search));
     const sortColumn = isSortColumn(sort_column)
         ? sort_column
         : "next_visit_date";
@@ -48,34 +45,12 @@ export function PatientTable({
             ? sort_direction
             : "desc";
 
-    useEffect(() => {
-        const raw = digitsOnly(search);
-        setSearchInput(raw);
-        lastSentSearch.current = raw;
-    }, [search]);
-
-    useEffect(() => {
-        const raw = digitsOnly(searchInput);
-        if (raw === lastSentSearch.current) return;
-        const t = setTimeout(() => {
-            lastSentSearch.current = raw;
-            navigateWithFilters(
-                {
-                    sort_column: sortColumn,
-                    sort_direction: sortDir,
-                    ...(raw ? { search: raw } : {}),
-                },
-                { replace: true },
-            );
-        }, 400);
-        return () => clearTimeout(t);
-    }, [searchInput, sortColumn, sortDir, navigateWithFilters]);
-
     const handleSort = (column: SortColumn, direction: SortDir) => {
         navigateWithFilters({
             sort_column: column,
             sort_direction: direction,
             ...(search ? { search } : {}),
+            ...(filter !== "all" ? { filter } : {}),
         });
     };
 
@@ -91,6 +66,7 @@ export function PatientTable({
         editQueryParams.set("sort_column", sortColumn);
     if (sortDir !== "desc")
         editQueryParams.set("sort_direction", sortDir);
+    if (filter !== "all") editQueryParams.set("filter", filter);
     if (current_page > 1) editQueryParams.set("page", String(current_page));
     const editQueryString = editQueryParams.toString();
     const from = total > 0 ? (current_page - 1) * per_page + 1 : 0;
@@ -98,17 +74,6 @@ export function PatientTable({
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center py-2">
-                <Input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    placeholder="חיפוש לפי ת.ז. (ספרות בלבד)..."
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(digitsOnly(e.target.value))}
-                    className="max-w-sm"
-                />
-            </div>
             <DataTable<Patient, unknown>
                 columns={getPatientColumns({
                     sortColumn,

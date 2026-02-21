@@ -1,5 +1,12 @@
 import type { VisitFilter } from "@/hooks/usePatientFilters";
-import { Button } from "../ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+} from "@/components/ui/select";
+
+const LABEL = "ביקור מתוכנן";
 
 interface PatientFiltersProps {
     filter: VisitFilter;
@@ -14,27 +21,26 @@ const FILTER_OPTIONS: { value: VisitFilter; label: string }[] = [
 ];
 
 export function PatientFilters({ filter, onChange }: PatientFiltersProps) {
-    return (
-        <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-                סינון לפי ביקור הבא:
-            </span>
-            <div className="inline-flex gap-2">
-                {FILTER_OPTIONS.map((option) => {
-                    const isActive = option.value === filter;
+    const selectedLabel =
+        FILTER_OPTIONS.find((o) => o.value === filter)?.label ?? "בחר סינון";
 
-                    return (
-                        <Button
-                            key={option.value}
-                            variant={isActive ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => onChange(option.value)}
-                        >
-                            {option.label}
-                        </Button>
-                    );
-                })}
-            </div>
-        </div>
+    return (
+        <Select
+            value={filter}
+            onValueChange={(value) => onChange(value as VisitFilter)}
+        >
+            <SelectTrigger size="sm" className="min-w-44">
+                <span className="truncate">
+                    {LABEL}: {selectedLabel}
+                </span>
+            </SelectTrigger>
+            <SelectContent>
+                {FILTER_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
     );
 }

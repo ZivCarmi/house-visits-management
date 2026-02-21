@@ -20,7 +20,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 </div>
             </header>
             <main className="mx-auto flex w-full max-w-screen-2xl flex-col gap-4 px-6 py-6">
-                <div>{children}</div>
+                {children}
             </main>
         </div>
     );

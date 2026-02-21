@@ -13,10 +13,13 @@ type PatientsPageProps = {
     search?: string;
     sort_column?: string;
     sort_direction?: string;
+    filter?: string;
 };
 
 const DEFAULT_SORT_COLUMN = "next_visit_date";
 const DEFAULT_SORT_DIRECTION = "desc";
+
+const DEFAULT_FILTER = "all";
 
 export default function Index({
     patients,
@@ -26,6 +29,7 @@ export default function Index({
     search,
     sort_column,
     sort_direction,
+    filter = DEFAULT_FILTER,
 }: PatientsPageProps) {
     const dialogOpen = openCreateDialog || (openEditDialog && !!editPatient);
 
@@ -36,6 +40,7 @@ export default function Index({
             params.set("sort_column", sort_column);
         if (sort_direction && sort_direction !== DEFAULT_SORT_DIRECTION)
             params.set("sort_direction", sort_direction);
+        if (filter && filter !== DEFAULT_FILTER) params.set("filter", filter);
         if (patients.current_page > 1)
             params.set("page", String(patients.current_page));
         const q = params.toString();
@@ -53,6 +58,7 @@ export default function Index({
                     search={search}
                     sort_column={sort_column}
                     sort_direction={sort_direction}
+                    filter={filter}
                 />
             </div>
 

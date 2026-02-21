@@ -5,6 +5,7 @@ export interface PatientListFilterParams {
     search?: string;
     sort_column?: string;
     sort_direction?: string;
+    filter?: string;
 }
 
 export interface NavigateWithFiltersOptions {
