@@ -6,7 +6,8 @@ export type FollowUpFrequency =
     | "monthly"
     | "bimonthly"
     | "quarterly"
-    | "semiannual";
+    | "semiannual"
+    | "none";
 
 export interface Patient {
     id: number;

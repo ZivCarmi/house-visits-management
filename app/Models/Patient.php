@@ -6,9 +6,12 @@ namespace App\Models;
 
 use App\Enums\FeedingType;
 use App\Enums\FollowUpFrequency;
+use App\Observers\PatientObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy(PatientObserver::class)]
 class Patient extends Model
 {
     use HasFactory;

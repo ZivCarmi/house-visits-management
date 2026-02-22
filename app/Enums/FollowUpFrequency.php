@@ -12,4 +12,5 @@ enum FollowUpFrequency: string
     case Bimonthly = 'bimonthly';
     case Quarterly = 'quarterly';
     case Semiannual = 'semiannual';
+    case None = 'none';
 }

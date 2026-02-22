@@ -8,6 +8,7 @@ export const FOLLOWUP_FREQUENCY_LABELS: Record<FollowUpFrequency, string> = {
     bimonthly: "דו־חודשי",
     quarterly: "רבעוני",
     semiannual: "חצי שנתי",
+    none: "ללא מעקב",
 };
 
 export const FOLLOWUP_FREQUENCY_OPTIONS: {

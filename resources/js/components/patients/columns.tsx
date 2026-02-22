@@ -178,22 +178,27 @@ export function getPatientColumns({
             accessorKey: "full_name",
             header: "שם",
             cell: ({ row }) => row.original.full_name,
+            meta: { className: "min-w-32" },
         },
         {
             accessorKey: "id_number",
             header: "ת.ז.",
+            meta: { className: "min-w-24" },
         },
         {
             accessorKey: "address",
             header: "כתובת",
+            meta: { className: "min-w-40" },
         },
         {
             accessorKey: "phone",
             header: "טלפון",
+            meta: { className: "min-w-28" },
         },
         {
             accessorKey: "feeding_type",
             header: "הזנה",
+            meta: { className: "min-w-20" },
         },
         {
             accessorKey: SORTABLE_LAST_VISIT,
@@ -207,6 +212,7 @@ export function getPatientColumns({
                 />
             ),
             cell: ({ row }) => formatDate(row.original.last_visit_date),
+            meta: { className: "min-w-28" },
         },
         {
             accessorKey: SORTABLE_NEXT_VISIT,
@@ -219,22 +225,28 @@ export function getPatientColumns({
                     onSort={onSort}
                 />
             ),
-            cell: ({ row }) => formatDate(row.original.next_visit_date),
+            cell: ({ row }) =>
+                row.original.next_visit_date
+                    ? formatDate(row.original.next_visit_date)
+                    : "—",
+            meta: { className: "min-w-16" },
         },
         {
             accessorKey: "followup_frequency",
             header: "תדירות",
             cell: ({ row }) =>
                 FOLLOWUP_FREQUENCY_LABELS[row.original.followup_frequency],
+            meta: { className: "min-w-20" },
         },
         {
             id: "status",
             header: "סטטוס",
             cell: ({ row }) => {
                 const next = row.original.next_visit_date;
-                if (!next) return "-";
+                if (!next) return "—";
                 return isOverdue(next) ? "באיחור" : "מתוכנן";
             },
+            meta: { className: "min-w-20" },
         },
         {
             id: "actions",
@@ -245,6 +257,7 @@ export function getPatientColumns({
                     editQueryString={editQueryString}
                 />
             ),
+            meta: { className: "min-w-24" },
         },
     ];
 }

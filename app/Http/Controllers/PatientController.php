@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Enums\FollowUpFrequency;
 use App\Http\Requests\PatientRequest;
 use App\Models\Patient;
-use App\Services\VisitCalculationService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
@@ -100,18 +98,9 @@ class PatientController extends Controller
         ]));
     }
 
-    public function store(PatientRequest $request, VisitCalculationService $visitCalculationService)
+    public function store(PatientRequest $request)
     {
-        $validated = $request->validated();
-
-        $nextVisitDate = $visitCalculationService->calculateNextVisitDate(
-            $request->date('last_visit_date')->toImmutable(),
-            $request->enum('followup_frequency', FollowUpFrequency::class)
-        );
-
-        $validated['next_visit_date'] = $nextVisitDate;
-
-        Patient::create($validated);
+        Patient::create($request->validated());
 
         return redirect()->route(
             'patients.index',
@@ -127,18 +116,9 @@ class PatientController extends Controller
         ]));
     }
 
-    public function update(PatientRequest $request, Patient $patient, VisitCalculationService $visitCalculationService)
+    public function update(PatientRequest $request, Patient $patient)
     {
-        $validated = $request->validated();
-
-        $nextVisitDate = $visitCalculationService->calculateNextVisitDate(
-            $request->date('last_visit_date')->toImmutable(),
-            $request->enum('followup_frequency', FollowUpFrequency::class)
-        );
-
-        $validated['next_visit_date'] = $nextVisitDate;
-
-        $patient->update($validated);
+        $patient->update($request->validated());
 
         return redirect()->route(
             'patients.index',
