@@ -44,7 +44,9 @@ FROM php:8.2-bookworm
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     libicu-dev \
+    libonig-dev \
     libpq-dev \
+    && docker-php-ext-configure intl \
     && docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_pgsql \
@@ -72,5 +74,5 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 ENV PORT=10000
 EXPOSE 10000
 
-# PORT is set by Render at runtime; defaults to 10000 if unset
-CMD ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+# PORT is set by Render at runtime; defaults to 10000 if unset. Migrations run on every start (Release Command not available on free tier).
+CMD ["sh", "-c", "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
