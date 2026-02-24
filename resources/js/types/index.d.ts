@@ -15,4 +15,8 @@ export type PageProps<
     auth: {
         user: User;
     };
+    flash?: {
+        error?: string;
+        status?: string;
+    };
 };

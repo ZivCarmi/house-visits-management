@@ -38,6 +38,10 @@ class HandleInertiaRequests extends Middleware
                     ? $request->session()->get('errors')->getBag('default')->getMessages()
                     : (object) [];
             },
+            'flash' => [
+                'error' => fn () => $request->session()->get('error'),
+                'status' => fn () => $request->session()->get('status'),
+            ],
         ]);
     }
 }

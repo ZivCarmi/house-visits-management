@@ -1,3 +1,4 @@
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -60,9 +61,7 @@ export default function Login({
                         </Link>
                     </CardHeader>
                     <CardContent>
-                        <Button variant="outline" className="w-full" asChild>
-                            <a href={route("auth.google")}>התחבר עם גוגל</a>
-                        </Button>
+                        <GoogleSignInButton />
 
                         <FieldSeparator className="my-4">
                             או המשך עם אימייל

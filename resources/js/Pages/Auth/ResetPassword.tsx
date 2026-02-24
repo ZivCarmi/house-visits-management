@@ -28,11 +28,11 @@ export default function ResetPassword({
 
     return (
         <GuestLayout>
-            <Head title="Reset Password" />
+            <Head title="איפוס סיסמה" />
 
             <form onSubmit={submit} className="flex flex-col gap-4">
                 <Field aria-invalid={!!errors.email}>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <FieldLabel htmlFor="email">אימייל</FieldLabel>
                     <Input
                         id="email"
                         type="email"
@@ -47,7 +47,7 @@ export default function ResetPassword({
                 </Field>
 
                 <Field aria-invalid={!!errors.password}>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">סיסמה</FieldLabel>
                     <Input
                         autoFocus
                         id="password"
@@ -64,7 +64,7 @@ export default function ResetPassword({
 
                 <Field aria-invalid={!!errors.password_confirmation}>
                     <FieldLabel htmlFor="password_confirmation">
-                        Confirm Password
+                        אימות סיסמה
                     </FieldLabel>
                     <Input
                         id="password_confirmation"
@@ -83,7 +83,7 @@ export default function ResetPassword({
 
                 <div className="flex items-center justify-end">
                     <Button type="submit" disabled={processing}>
-                        Reset Password
+                        איפוס סיסמה
                     </Button>
                 </div>
             </form>

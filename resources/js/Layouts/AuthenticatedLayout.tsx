@@ -11,13 +11,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { NavLink } from "@/components/ui/nav-link";
+import { toast } from "sonner";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import { AlertCircleIcon } from "lucide-react";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 
 export default function AuthenticatedLayout({ children }: PropsWithChildren) {
     const { props } = usePage();
     const user = props.auth?.user;
+    const flash = props.flash;
+
+    useEffect(() => {
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+        if (flash?.status) {
+            toast.success(flash.status);
+        }
+    }, [flash?.error, flash?.status]);
     const isUnverified = user && user.email_verified_at == null;
     const { post, processing } = useForm({});
 
