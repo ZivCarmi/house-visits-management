@@ -1,19 +1,5 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
-import { Link, router } from "@inertiajs/react";
-import { useState } from "react";
-import { toasts } from "@/lib/toastMessages";
-import {
-    ArrowDown,
-    ArrowUp,
-    ArrowUpDown,
-    CopyIcon,
-    MoreHorizontal,
-    PencilIcon,
-    TrashIcon,
-} from "lucide-react";
-import type { Patient } from "@/types/patient";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,12 +20,27 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FOLLOWUP_FREQUENCY_LABELS } from "@/lib/patientLabels";
+import type { SortColumn, SortDir } from "@/lib/patientSort";
+import {
+    SORT_COLUMN_LAST_VISIT,
+    SORT_COLUMN_NEXT_VISIT,
+} from "@/lib/patientSort";
+import { toasts } from "@/lib/toastMessages";
+import { cn } from "@/lib/utils";
+import type { Patient } from "@/types/patient";
 import { formatDate, isOverdue } from "@/utils/dateHelpers";
-
-const SORTABLE_LAST_VISIT = "last_visit_date";
-const SORTABLE_NEXT_VISIT = "next_visit_date";
-type SortColumn = typeof SORTABLE_LAST_VISIT | typeof SORTABLE_NEXT_VISIT;
-type SortDir = "asc" | "desc";
+import { Link, router } from "@inertiajs/react";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+    ArrowDown,
+    ArrowUp,
+    ArrowUpDown,
+    CopyIcon,
+    MoreHorizontal,
+    PencilIcon,
+    TrashIcon,
+} from "lucide-react";
+import { useState } from "react";
 
 function SortableHeader({
     label,
@@ -61,7 +62,7 @@ function SortableHeader({
         <Button
             variant="ghost"
             size="sm"
-            className="-ms-2 h-8"
+            className="-ms-2"
             onClick={() => onSort(columnId, nextDir)}
         >
             {label}
@@ -81,9 +82,11 @@ function SortableHeader({
 function ActionsCell({
     patient,
     editQueryString,
+    canEdit,
 }: {
     patient: Patient;
     editQueryString: string;
+    canEdit: boolean;
 }) {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const copyId = () => {
@@ -96,24 +99,22 @@ function ActionsCell({
             onError: () => toasts.patient.deleteFailed(),
         });
     };
+
     return (
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0"
-                        aria-label="פתח תפריט"
-                    >
-                        <MoreHorizontal className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" aria-label="פתח תפריט">
+                        <MoreHorizontal className="size-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent>
                     <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem asChild disabled={!canEdit}>
                             <Link
                                 href={`/patients/${patient.id}/edit${editQueryString ? `?${editQueryString}` : ""}`}
                                 preserveScroll
+                                disabled={!canEdit}
                             >
                                 <PencilIcon />
                                 עריכה
@@ -131,6 +132,7 @@ function ActionsCell({
                             e.preventDefault();
                             setDeleteOpen(true);
                         }}
+                        disabled={!canEdit}
                     >
                         <TrashIcon />
                         מחיקה
@@ -165,6 +167,7 @@ export interface PatientTableSortProps {
     sortDir: SortDir;
     onSort: (column: SortColumn, dir: SortDir) => void;
     editQueryString: string;
+    canEdit?: boolean;
 }
 
 export function getPatientColumns({
@@ -172,6 +175,7 @@ export function getPatientColumns({
     sortDir,
     onSort,
     editQueryString,
+    canEdit = true,
 }: PatientTableSortProps): ColumnDef<Patient>[] {
     return [
         {
@@ -201,11 +205,11 @@ export function getPatientColumns({
             meta: { className: "min-w-20" },
         },
         {
-            accessorKey: SORTABLE_LAST_VISIT,
+            accessorKey: SORT_COLUMN_LAST_VISIT,
             header: () => (
                 <SortableHeader
                     label="ביקור אחרון"
-                    columnId={SORTABLE_LAST_VISIT}
+                    columnId={SORT_COLUMN_LAST_VISIT}
                     currentSortColumn={sortColumn}
                     currentSortDir={sortDir}
                     onSort={onSort}
@@ -215,11 +219,11 @@ export function getPatientColumns({
             meta: { className: "min-w-28" },
         },
         {
-            accessorKey: SORTABLE_NEXT_VISIT,
+            accessorKey: SORT_COLUMN_NEXT_VISIT,
             header: () => (
                 <SortableHeader
                     label="ביקור הבא"
-                    columnId={SORTABLE_NEXT_VISIT}
+                    columnId={SORT_COLUMN_NEXT_VISIT}
                     currentSortColumn={sortColumn}
                     currentSortDir={sortDir}
                     onSort={onSort}
@@ -255,6 +259,7 @@ export function getPatientColumns({
                 <ActionsCell
                     patient={row.original}
                     editQueryString={editQueryString}
+                    canEdit={canEdit}
                 />
             ),
             meta: { className: "min-w-24" },

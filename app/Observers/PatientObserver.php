@@ -16,6 +16,10 @@ class PatientObserver
 
     public function creating(Patient $patient): void
     {
+        if (auth()->check() && $patient->user_id === null) {
+            $patient->user_id = auth()->id();
+        }
+
         $this->setNextVisitDate($patient);
     }
 

@@ -1,10 +1,12 @@
 import "./bootstrap";
 
+import { Toaster } from "@/components/ui/sonner";
 import { createInertiaApp } from "@inertiajs/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "./components/ui/theme-provider";
 import { DirectionProvider } from "./components/ui/direction";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 createInertiaApp({
     resolve: (name) => {
@@ -23,14 +25,18 @@ createInertiaApp({
 
         root.render(
             <StrictMode>
-                <DirectionProvider dir="rtl">
-                    <App {...props} />
-                    <Toaster />
-                </DirectionProvider>
+                <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                    <DirectionProvider dir="rtl">
+                        <TooltipProvider>
+                            <App {...props} />
+                        </TooltipProvider>
+                        <Toaster />
+                    </DirectionProvider>
+                </ThemeProvider>
             </StrictMode>,
         );
     },
     progress: {
-        color: "#0f766e",
+        color: "#ff6900",
     },
 });

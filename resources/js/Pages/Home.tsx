@@ -1,8 +1,8 @@
+import { Card, CardContent } from "@/components/ui/card";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import type { LucideIcon } from "lucide-react";
 import { CalendarClockIcon, CheckCircleIcon, UsersIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { AppLayout } from "@/Layouts/AppLayout";
 
 type HomeStats = {
     total_patients: number;
@@ -42,9 +42,11 @@ const STAT_CARDS: {
 
 export default function Home({ stats }: HomeProps) {
     return (
-        <AppLayout>
+        <AuthenticatedLayout>
             <Head title="דף הבית" />
-            <p className="mb-6 text-lg font-medium">ברוך הבא.</p>
+            <h2 className="text-2xl font-semibold tracking-tight mb-6">
+                ברוך הבא!
+            </h2>
             <div className="grid gap-4 sm:grid-cols-3">
                 {STAT_CARDS.map(({ key, label, icon: Icon, color }) => (
                     <Card key={key} className="p-4">
@@ -66,6 +68,6 @@ export default function Home({ stats }: HomeProps) {
                     </Card>
                 ))}
             </div>
-        </AppLayout>
+        </AuthenticatedLayout>
     );
 }

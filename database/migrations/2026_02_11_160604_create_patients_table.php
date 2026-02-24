@@ -17,8 +17,9 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('full_name', 255);
-            $table->string('id_number', 9)->unique();
+            $table->string('id_number', 9);
             $table->string('address', 255);
             $table->string('phone', 20);
             $table->string('feeding_type')->default(FeedingType::PO->value);
@@ -27,6 +28,8 @@ return new class extends Migration
             $table->date('next_visit_date')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->unique(['user_id', 'id_number']);
         });
     }
 

@@ -8,17 +8,16 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import {
+    DEFAULT_SORT_COLUMN,
+    DEFAULT_SORT_DIRECTION,
+    parseSortParams,
+    type SortColumn,
+    type SortDir,
+} from "@/lib/patientSort";
+import { usePatientListNavigation } from "@/hooks/usePatientListNavigation";
 import { DataTable } from "./DataTable";
 import { getPatientColumns } from "./columns";
-import { usePatientListNavigation } from "@/hooks/usePatientListNavigation";
-
-const SORT_COLUMNS = ["last_visit_date", "next_visit_date"] as const;
-type SortColumn = (typeof SORT_COLUMNS)[number];
-type SortDir = "asc" | "desc";
-
-function isSortColumn(v: string): v is SortColumn {
-    return SORT_COLUMNS.includes(v as SortColumn);
-}
 
 interface PatientTableProps {
     patients: PaginatedPatients;
@@ -26,24 +25,22 @@ interface PatientTableProps {
     sort_column?: string;
     sort_direction?: string;
     filter?: string;
+    canEdit?: boolean;
 }
 
 export function PatientTable({
     patients,
     search = "",
-    sort_column = "next_visit_date",
-    sort_direction = "desc",
+    sort_column = DEFAULT_SORT_COLUMN,
+    sort_direction = DEFAULT_SORT_DIRECTION,
     filter = "all",
+    canEdit = true,
 }: PatientTableProps) {
     const { navigateWithFilters } = usePatientListNavigation();
-
-    const sortColumn = isSortColumn(sort_column)
-        ? sort_column
-        : "next_visit_date";
-    const sortDir: SortDir =
-        sort_direction === "asc" || sort_direction === "desc"
-            ? sort_direction
-            : "desc";
+    const { sortColumn, sortDir } = parseSortParams(
+        sort_column,
+        sort_direction,
+    );
 
     const handleSort = (column: SortColumn, direction: SortDir) => {
         navigateWithFilters({
@@ -62,9 +59,9 @@ export function PatientTable({
 
     const editQueryParams = new URLSearchParams();
     if (search) editQueryParams.set("search", search);
-    if (sortColumn !== "next_visit_date")
+    if (sortColumn !== DEFAULT_SORT_COLUMN)
         editQueryParams.set("sort_column", sortColumn);
-    if (sortDir !== "desc")
+    if (sortDir !== DEFAULT_SORT_DIRECTION)
         editQueryParams.set("sort_direction", sortDir);
     if (filter !== "all") editQueryParams.set("filter", filter);
     if (current_page > 1) editQueryParams.set("page", String(current_page));
@@ -80,6 +77,7 @@ export function PatientTable({
                     sortDir,
                     onSort: handleSort,
                     editQueryString,
+                    canEdit,
                 })}
                 data={patients.data}
                 emptyMessage="לא נמצאו מטופלים."

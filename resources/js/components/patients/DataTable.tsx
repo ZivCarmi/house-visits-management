@@ -42,9 +42,11 @@ export function DataTable<TData, TValue>({
                                 <TableHead
                                     key={header.id}
                                     className={
-                                        (header.column.columnDef.meta as
-                                            | { className?: string }
-                                            | undefined)?.className
+                                        (
+                                            header.column.columnDef.meta as
+                                                | { className?: string }
+                                                | undefined
+                                        )?.className
                                     }
                                 >
                                     {header.isPlaceholder
@@ -71,9 +73,11 @@ export function DataTable<TData, TValue>({
                                     <TableCell
                                         key={cell.id}
                                         className={
-                                            (cell.column.columnDef.meta as
-                                                | { className?: string }
-                                                | undefined)?.className
+                                            (
+                                                cell.column.columnDef.meta as
+                                                    | { className?: string }
+                                                    | undefined
+                                            )?.className
                                         }
                                     >
                                         {flexRender(

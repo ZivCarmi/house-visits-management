@@ -1,9 +1,10 @@
-import { Head, router } from "@inertiajs/react";
-import type { Patient, PaginatedPatients } from "@/types/patient";
-import { AppLayout } from "@/Layouts/AppLayout";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { PatientDialog } from "@/components/patients/PatientDialog";
 import { PatientTable } from "@/components/patients/PatientTable";
 import { PatientTableToolbar } from "@/components/patients/PatientTableToolbar";
-import { PatientDialog } from "@/components/patients/PatientDialog";
+import { DEFAULT_SORT_COLUMN, DEFAULT_SORT_DIRECTION } from "@/lib/patientSort";
+import type { PaginatedPatients, Patient } from "@/types/patient";
+import { Head, router, usePage } from "@inertiajs/react";
 
 type PatientsPageProps = {
     patients: PaginatedPatients;
@@ -15,9 +16,6 @@ type PatientsPageProps = {
     sort_direction?: string;
     filter?: string;
 };
-
-const DEFAULT_SORT_COLUMN = "next_visit_date";
-const DEFAULT_SORT_DIRECTION = "desc";
 
 const DEFAULT_FILTER = "all";
 
@@ -31,6 +29,10 @@ export default function Index({
     sort_direction,
     filter = DEFAULT_FILTER,
 }: PatientsPageProps) {
+    const user = usePage().props.auth?.user as
+        | { email_verified_at?: string | null }
+        | undefined;
+    const canEdit = user?.email_verified_at != null;
     const dialogOpen = openCreateDialog || (openEditDialog && !!editPatient);
 
     const onCloseDialog = () => {
@@ -48,7 +50,7 @@ export default function Index({
     };
 
     return (
-        <AppLayout>
+        <AuthenticatedLayout>
             <Head title="מטופלים" />
 
             <div className="flex flex-col gap-4">
@@ -59,6 +61,7 @@ export default function Index({
                     sort_column={sort_column}
                     sort_direction={sort_direction}
                     filter={filter}
+                    canEdit={canEdit}
                 />
             </div>
 
@@ -67,6 +70,6 @@ export default function Index({
                 patient={editPatient}
                 onClose={onCloseDialog}
             />
-        </AppLayout>
+        </AuthenticatedLayout>
     );
 }

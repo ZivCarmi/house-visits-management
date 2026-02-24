@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PatientRequest;
 use App\Models\Patient;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Inertia\Inertia;
 
 class PatientController extends Controller
@@ -17,18 +17,20 @@ class PatientController extends Controller
     /** Timezone for "today" / "this week" / "this month" in visit filters (Israeli week = Sun–Sat). */
     private const VISIT_FILTER_TIMEZONE = 'Asia/Jerusalem';
 
-    private function patientsQuery(): Builder
+    private const VALID_SORT_COLUMNS = ['id', 'last_visit_date', 'next_visit_date'];
+
+    private function patientsQuery(): HasMany
     {
-        $sortColumn = request('sort_column', 'next_visit_date');
-        if (! in_array($sortColumn, ['last_visit_date', 'next_visit_date'], true)) {
-            $sortColumn = 'next_visit_date';
+        $sortColumn = request('sort_column', 'id');
+        if (! in_array($sortColumn, self::VALID_SORT_COLUMNS, true)) {
+            $sortColumn = 'id';
         }
         $sortDirection = strtolower(request('sort_direction', 'desc'));
         if (! in_array($sortDirection, ['asc', 'desc'], true)) {
             $sortDirection = 'desc';
         }
 
-        $query = Patient::query()->orderBy($sortColumn, $sortDirection);
+        $query = auth()->user()->patients()->orderBy($sortColumn, $sortDirection);
 
         $search = request('search');
         if (is_string($search) && $search !== '' && preg_match('/^\d+$/', $search)) {
@@ -57,9 +59,9 @@ class PatientController extends Controller
 
     private function indexProps(array $extra = []): array
     {
-        $sortColumn = request('sort_column', 'next_visit_date');
-        if (! in_array($sortColumn, ['last_visit_date', 'next_visit_date'], true)) {
-            $sortColumn = 'next_visit_date';
+        $sortColumn = request('sort_column', 'id');
+        if (! in_array($sortColumn, self::VALID_SORT_COLUMNS, true)) {
+            $sortColumn = 'id';
         }
         $sortDirection = strtolower(request('sort_direction', 'desc'));
         if (! in_array($sortDirection, ['asc', 'desc'], true)) {

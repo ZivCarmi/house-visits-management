@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Patient;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,12 +20,14 @@ class HomeController extends Controller
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
 
+        $patients = auth()->user()->patients();
+
         $stats = [
-            'total_patients' => Patient::query()->count(),
-            'need_visit_this_week' => Patient::query()
+            'total_patients' => $patients->count(),
+            'need_visit_this_week' => (clone $patients)
                 ->whereBetween('next_visit_date', [$weekStart, $weekEnd])
                 ->count(),
-            'visited_this_month' => Patient::query()
+            'visited_this_month' => (clone $patients)
                 ->whereBetween('last_visit_date', [$monthStart, $monthEnd])
                 ->count(),
         ];

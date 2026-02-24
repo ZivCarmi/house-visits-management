@@ -10,6 +10,7 @@ use App\Observers\PatientObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[ObservedBy(PatientObserver::class)]
 class Patient extends Model
@@ -42,5 +43,10 @@ class Patient extends Model
             'last_visit_date' => 'date',
             'next_visit_date' => 'date',
         ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -34,7 +34,9 @@ class PatientRequest extends FormRequest
                 'string',
                 'max:9',
                 'regex:/^\d+$/',
-                Rule::unique('patients', 'id_number')->ignore($this->patient),
+                Rule::unique('patients', 'id_number')
+                    ->where('user_id', auth()->id())
+                    ->ignore($this->patient),
             ],
             'address' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20', 'regex:/^\d+$/'],

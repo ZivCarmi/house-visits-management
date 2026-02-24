@@ -22,7 +22,7 @@ export function usePatientListNavigation() {
             params: PatientListFilterParams,
             options?: NavigateWithFiltersOptions
         ) => {
-            router.get("/patients", params, {
+            router.get("/patients", params as Record<string, string | undefined>, {
                 preserveState: true,
                 replace: options?.replace ?? false,
             });

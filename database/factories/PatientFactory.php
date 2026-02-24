@@ -7,6 +7,7 @@ namespace Database\Factories;
 use App\Enums\FeedingType;
 use App\Enums\FollowUpFrequency;
 use App\Models\Patient;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Faker\Factory as FakerFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -35,6 +36,7 @@ class PatientFactory extends Factory
             FollowUpFrequency::Bimonthly => $lastDate->addMonths(2),
             FollowUpFrequency::Quarterly => $lastDate->addMonths(3),
             FollowUpFrequency::Semiannual => $lastDate->addMonths(6),
+            FollowUpFrequency::None => null,
         };
 
         $useHebrew = fake()->boolean(50);
@@ -51,6 +53,7 @@ class PatientFactory extends Factory
             : fake()->optional(0.3)->sentence();
 
         return [
+            'user_id' => fn () => User::factory(),
             'full_name' => $fullName,
             'id_number' => (string) fake()->unique()->numberBetween(100000000, 999999999),
             'address' => $address,
@@ -58,7 +61,7 @@ class PatientFactory extends Factory
             'feeding_type' => $feedingType,
             'last_visit_date' => $lastDate->format('Y-m-d'),
             'followup_frequency' => $frequency,
-            'next_visit_date' => $nextDate->format('Y-m-d'),
+            'next_visit_date' => $nextDate?->format('Y-m-d'),
             'notes' => $notes,
         ];
     }

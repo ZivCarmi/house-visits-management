@@ -1,15 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { usePage } from "@inertiajs/react";
 import { usePatientListNavigation } from "@/hooks/usePatientListNavigation";
+import { parseSortParams } from "@/lib/patientSort";
 import { digitsOnly } from "@/lib/utils";
-
-const SORT_COLUMNS = ["last_visit_date", "next_visit_date"] as const;
-type SortColumn = (typeof SORT_COLUMNS)[number];
-type SortDir = "asc" | "desc";
-
-function isSortColumn(v: string): v is SortColumn {
-    return SORT_COLUMNS.includes(v as SortColumn);
-}
 
 type PatientListPageProps = {
     search?: string;
@@ -27,17 +20,14 @@ export function usePatientSearch() {
     const { navigateWithFilters } = usePatientListNavigation();
     const props = usePage().props as PatientListPageProps;
     const search = props.search ?? "";
-    const sort_column = props.sort_column ?? "next_visit_date";
-    const sort_direction = props.sort_direction ?? "desc";
     const filter = props.filter ?? "all";
+    const { sortColumn, sortDir } = parseSortParams(
+        props.sort_column,
+        props.sort_direction,
+    );
 
     const [searchInput, setSearchInput] = useState(() => digitsOnly(search));
     const lastSentSearch = useRef(digitsOnly(search));
-    const sortColumn = isSortColumn(sort_column) ? sort_column : "next_visit_date";
-    const sortDir: SortDir =
-        sort_direction === "asc" || sort_direction === "desc"
-            ? sort_direction
-            : "desc";
 
     useEffect(() => {
         const raw = digitsOnly(search);

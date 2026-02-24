@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { usePatientForm } from "@/hooks/usePatientForm";
 import { PatientFormFields } from "./PatientForm";
+import { Spinner } from "../ui/spinner";
 
 interface PatientDialogProps {
     open: boolean;
@@ -25,22 +26,24 @@ export function PatientDialog({ open, patient, onClose }: PatientDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-xl">
+            <DialogContent className="sm:max-w-lg">
                 <form onSubmit={submit} className="space-y-4">
                     <DialogHeader>
                         <DialogTitle>
-                            {patient ? "עריכת מטופל" : "מטופל חדש"}
+                            {patient ? "עריכת פרטי מטופל" : "יצירת מטופל חדש"}
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <PatientFormFields
-                            data={data}
-                            setData={setData}
-                            errors={errors}
-                        />
-                    </div>
-                    <DialogFooter showCloseButton>
-                        <Button type="submit" disabled={processing}>
+                    <PatientFormFields
+                        data={data}
+                        setData={setData}
+                        errors={errors}
+                    />
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">סגור</Button>
+                        </DialogClose>
+                        <Button disabled={processing}>
+                            {processing && <Spinner data-icon="inline-start" />}
                             שמירת מטופל
                         </Button>
                     </DialogFooter>

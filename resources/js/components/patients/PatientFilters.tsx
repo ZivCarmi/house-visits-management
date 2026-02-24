@@ -1,10 +1,11 @@
-import type { VisitFilter } from "@/hooks/usePatientFilters";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
+import type { VisitFilter } from "@/hooks/usePatientFilters";
 
 const LABEL = "ביקור מתוכנן";
 
@@ -30,9 +31,9 @@ export function PatientFilters({ filter, onChange }: PatientFiltersProps) {
             onValueChange={(value) => onChange(value as VisitFilter)}
         >
             <SelectTrigger size="sm" className="min-w-44">
-                <span className="truncate">
+                <SelectValue>
                     {LABEL}: {selectedLabel}
-                </span>
+                </SelectValue>
             </SelectTrigger>
             <SelectContent>
                 {FILTER_OPTIONS.map((option) => (
