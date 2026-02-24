@@ -1,78 +1,81 @@
-# Build stage: PHP + Composer + Node for assets
+# ---------------------------------------------------------------------------
+# Stage 1: Build environment – PHP extensions, Composer, Node, and assets
+# Based on: https://docs.docker.com/guides/frameworks/laravel/production-setup/
+# ---------------------------------------------------------------------------
 FROM php:8.2-bookworm AS builder
 
-RUN apt-get update && apt-get install -y \
+# System deps and PHP extensions for Laravel (MySQL/PostgreSQL). No standalone "pdo" – PDO comes with pdo_*.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     unzip \
     git \
-    libzip-dev \
-    libicu-dev \
-    libonig-dev \
     libpq-dev \
+    libonig-dev \
+    libxml2-dev \
+    libicu-dev \
+    libzip-dev \
+    && docker-php-ext-configure intl \
     && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_pgsql \
     pdo_mysql \
+    pdo_pgsql \
     mbstring \
-    zip \
     intl \
+    zip \
     opcache \
-    && rm -rf /var/lib/apt/lists/*
+    bcmath \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install Node 20
+# Node 20 for Vite build
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy application ( .dockerignore excludes node_modules, vendor, .env )
+# Copy full app before composer (scripts may need artisan, etc.)
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist \
+    && npm ci && npm run build
 
-# Install Node deps and build assets
-RUN npm ci && npm run build
+# ---------------------------------------------------------------------------
+# Stage 2: Production – runtime only; copy extensions from builder
+# ---------------------------------------------------------------------------
+FROM php:8.2-bookworm AS production
 
-# Production stage
-FROM php:8.2-bookworm
-
-RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    libicu-dev \
-    libonig-dev \
+# Runtime libs required for the copied PHP extensions to load (guide keeps -dev for ABI compatibility)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_pgsql \
-    pdo_mysql \
-    mbstring \
-    zip \
-    intl \
-    opcache \
-    && rm -rf /var/lib/apt/lists/*
+    libicu-dev \
+    libzip-dev \
+    libonig-dev \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copy compiled PHP extensions and config from builder (no re-install in production)
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
+
+# Production PHP config
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 WORKDIR /app
 
-# Copy application code (no node_modules or vendor from context - in .dockerignore)
+# App code from context ( .dockerignore excludes node_modules, vendor, .env )
 COPY . .
 
-# Copy vendor and built assets from builder
+# Vendor and built assets from builder
 COPY --from=builder /app/vendor ./vendor
 COPY --from=builder /app/public/build ./public/build
 
-# Ensure storage is writable
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Render sets PORT at runtime
+USER www-data
+
 ENV PORT=10000
 EXPOSE 10000
 
-# PORT is set by Render at runtime; defaults to 10000 if unset. Migrations run on every start (Release Command not available on free tier).
 CMD ["sh", "-c", "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
