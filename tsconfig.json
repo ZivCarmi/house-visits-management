@@ -5,12 +5,14 @@
         "moduleResolution": "bundler",
         "jsx": "react-jsx",
         "strict": true,
+        "noImplicitAny": true,
         "isolatedModules": true,
         "target": "ESNext",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
         "noEmit": true,
+        "baseUrl": ".",
         "paths": {
             "@/*": ["./resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"]

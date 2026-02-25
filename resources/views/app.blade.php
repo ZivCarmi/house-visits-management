@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl" @class(['dark'=> ($appearance ?? 'system') ==
+'dark'])>
 
 <head>
     <meta charset="utf-8">
