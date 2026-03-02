@@ -4,137 +4,89 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DTOs\PatientFilterDTO;
+use App\Http\Controllers\Concerns\PreservesQueryParameters;
 use App\Http\Requests\PatientRequest;
 use App\Models\Patient;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Services\PatientService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class PatientController extends Controller
 {
-    private const VALID_FILTERS = ['all', 'weekly', 'monthly', 'overdue'];
+    use PreservesQueryParameters;
 
-    /** Timezone for "today" / "this week" / "this month" in visit filters (Israeli week = Sun–Sat). */
-    private const VISIT_FILTER_TIMEZONE = 'Asia/Jerusalem';
+    public function __construct(private readonly PatientService $patientService) {}
 
-    private const VALID_SORT_COLUMNS = ['id', 'last_visit_date', 'next_visit_date'];
-
-    private function patientsQuery(): HasMany
+    public function index(Request $request): Response
     {
-        $sortColumn = request('sort_column', 'id');
-        if (! in_array($sortColumn, self::VALID_SORT_COLUMNS, true)) {
-            $sortColumn = 'id';
-        }
-        $sortDirection = strtolower(request('sort_direction', 'desc'));
-        if (! in_array($sortDirection, ['asc', 'desc'], true)) {
-            $sortDirection = 'desc';
-        }
+        $filters = PatientFilterDTO::fromRequest($request);
+        $user = $request->user();
+        $patients = $this->patientService->getPaginatedPatients($user, $filters);
 
-        $query = auth()->user()->patients()->orderBy($sortColumn, $sortDirection);
-
-        $search = request('search');
-        if (is_string($search) && $search !== '' && preg_match('/^\d+$/', $search)) {
-            $query->where('id_number', 'like', '%'.$search.'%');
-        }
-
-        $filter = request('filter', 'all');
-        if (is_string($filter) && in_array($filter, self::VALID_FILTERS, true) && $filter !== 'all') {
-            $today = Carbon::today(self::VISIT_FILTER_TIMEZONE);
-            match ($filter) {
-                'weekly' => $query->whereBetween('next_visit_date', [
-                    $today->copy()->subDays($today->dayOfWeek)->startOfDay(),
-                    $today->copy()->subDays($today->dayOfWeek)->addDays(6)->endOfDay(),
-                ]),
-                'monthly' => $query->whereBetween('next_visit_date', [
-                    $today->copy()->startOfMonth(),
-                    $today->copy()->endOfMonth(),
-                ]),
-                'overdue' => $query->whereDate('next_visit_date', '<', $today),
-                default => null,
-            };
-        }
-
-        return $query;
+        return Inertia::render('Patients/Index', [
+            'patients' => $patients,
+            'search' => $filters->search ?? '',
+            'sort_column' => $filters->sortColumn,
+            'sort_direction' => $filters->sortDirection,
+            'filter' => $filters->filter,
+            'openCreateDialog' => $request->boolean('create'),
+        ]);
     }
 
-    private function indexProps(array $extra = []): array
+    public function create(Request $request): Response
     {
-        $sortColumn = request('sort_column', 'id');
-        if (! in_array($sortColumn, self::VALID_SORT_COLUMNS, true)) {
-            $sortColumn = 'id';
-        }
-        $sortDirection = strtolower(request('sort_direction', 'desc'));
-        if (! in_array($sortDirection, ['asc', 'desc'], true)) {
-            $sortDirection = 'desc';
-        }
+        $filters = PatientFilterDTO::fromRequest($request);
+        $user = $request->user();
+        $patients = $this->patientService->getPaginatedPatients($user, $filters);
 
-        $search = request('search');
-        $searchValue = is_string($search) && preg_match('/^\d*$/', $search) ? $search : '';
-
-        $filter = request('filter', 'all');
-        $filterValue = is_string($filter) && in_array($filter, self::VALID_FILTERS, true) ? $filter : 'all';
-
-        return array_merge([
-            'patients' => $this->patientsQuery()->paginate(15)->withQueryString(),
-            'search' => $searchValue,
-            'sort_column' => $sortColumn,
-            'sort_direction' => $sortDirection,
-            'filter' => $filterValue,
-        ], $extra);
-    }
-
-    public function index()
-    {
-        $extra = [];
-        if (request()->boolean('create')) {
-            $extra['openCreateDialog'] = true;
-        }
-
-        return Inertia::render('Patients/Index', $this->indexProps($extra));
-    }
-
-    public function create()
-    {
-        return Inertia::render('Patients/Index', $this->indexProps([
+        return Inertia::render('Patients/Index', [
+            'patients' => $patients,
+            'search' => $filters->search ?? '',
+            'sort_column' => $filters->sortColumn,
+            'sort_direction' => $filters->sortDirection,
+            'filter' => $filters->filter,
             'openCreateDialog' => true,
-        ]));
+        ]);
     }
 
     public function store(PatientRequest $request)
     {
-        Patient::create($request->validated());
+        $user = $request->user();
+        $this->patientService->createPatient($user, $request->validated());
 
-        return redirect()->route(
-            'patients.index',
-            request()->only(['search', 'sort_column', 'sort_direction', 'filter', 'page'])
-        );
+        return redirect()->route('patients.index', $this->preservedQueryParams());
     }
 
-    public function edit(Patient $patient)
+    public function edit(Request $request, Patient $patient): Response
     {
-        return Inertia::render('Patients/Index', $this->indexProps([
+        $filters = PatientFilterDTO::fromRequest($request);
+        $user = $request->user();
+        $patients = $this->patientService->getPaginatedPatients($user, $filters);
+
+        return Inertia::render('Patients/Index', [
+            'patients' => $patients,
+            'search' => $filters->search ?? '',
+            'sort_column' => $filters->sortColumn,
+            'sort_direction' => $filters->sortDirection,
+            'filter' => $filters->filter,
             'openEditDialog' => true,
             'editPatient' => $patient,
-        ]));
+        ]);
     }
 
     public function update(PatientRequest $request, Patient $patient)
     {
-        $patient->update($request->validated());
+        $this->patientService->updatePatient($patient, $request->validated());
 
-        return redirect()->route(
-            'patients.index',
-            request()->only(['search', 'sort_column', 'sort_direction', 'filter', 'page'])
-        );
+        return redirect()->route('patients.index', $this->preservedQueryParams());
     }
 
     public function destroy(Patient $patient)
     {
-        $patient->delete();
+        $this->patientService->deletePatient($patient);
 
-        return redirect()->route(
-            'patients.index',
-            request()->only(['search', 'sort_column', 'sort_direction', 'filter', 'page'])
-        );
+        return redirect()->route('patients.index', $this->preservedQueryParams());
     }
 }

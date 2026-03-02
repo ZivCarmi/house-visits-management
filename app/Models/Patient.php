@@ -7,7 +7,9 @@ namespace App\Models;
 use App\Enums\FeedingType;
 use App\Enums\FollowUpFrequency;
 use App\Observers\PatientObserver;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,5 +50,52 @@ class Patient extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeSearch(Builder $query, ?string $search): Builder
+    {
+        if (is_string($search) && $search !== '' && preg_match('/^\d+$/', $search)) {
+            $query->where('id_number', 'like', '%'.$search.'%');
+        }
+
+        return $query;
+    }
+
+    public function scopeWeeklyVisits(Builder $query, string $timezone = 'Asia/Jerusalem'): Builder
+    {
+        $today = Carbon::today($timezone);
+
+        return $query->whereBetween('next_visit_date', [
+            $today->copy()->subDays($today->dayOfWeek)->startOfDay(),
+            $today->copy()->subDays($today->dayOfWeek)->addDays(6)->endOfDay(),
+        ]);
+    }
+
+    public function scopeMonthlyVisits(Builder $query, string $timezone = 'Asia/Jerusalem'): Builder
+    {
+        $today = Carbon::today($timezone);
+
+        return $query->whereBetween('next_visit_date', [
+            $today->copy()->startOfMonth(),
+            $today->copy()->endOfMonth(),
+        ]);
+    }
+
+    public function scopeOverdueVisits(Builder $query, string $timezone = 'Asia/Jerusalem'): Builder
+    {
+        $today = Carbon::today($timezone);
+
+        return $query->whereDate('next_visit_date', '<', $today);
+    }
+
+    public function scopeSortBy(Builder $query, string $column = 'id', string $direction = 'desc'): Builder
+    {
+        $validColumns = ['id', 'last_visit_date', 'next_visit_date'];
+        $column = in_array($column, $validColumns, true) ? $column : 'id';
+
+        $validDirections = ['asc', 'desc'];
+        $direction = in_array(strtolower($direction), $validDirections, true) ? strtolower($direction) : 'desc';
+
+        return $query->orderBy($column, $direction);
     }
 }
