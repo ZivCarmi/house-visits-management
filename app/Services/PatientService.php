@@ -8,7 +8,7 @@ use App\DTOs\PatientFilterDTO;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PatientService
 {
@@ -36,7 +36,7 @@ class PatientService
         return $patient->delete();
     }
 
-    private function buildQuery(User $user, PatientFilterDTO $filters): Builder
+    private function buildQuery(User $user, PatientFilterDTO $filters): HasMany
     {
         $query = $user->patients()
             ->sortBy($filters->sortColumn, $filters->sortDirection)
