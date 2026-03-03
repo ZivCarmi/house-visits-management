@@ -26,6 +26,7 @@ interface PatientTableProps {
     sort_direction?: string;
     filter?: string;
     canEdit?: boolean;
+    onSchedule?: (patient: Patient) => void;
 }
 
 export function PatientTable({
@@ -35,6 +36,7 @@ export function PatientTable({
     sort_direction = DEFAULT_SORT_DIRECTION,
     filter = "all",
     canEdit = true,
+    onSchedule,
 }: PatientTableProps) {
     const { navigateWithFilters } = usePatientListNavigation();
     const { sortColumn, sortDir } = parseSortParams(
@@ -78,6 +80,7 @@ export function PatientTable({
                     onSort: handleSort,
                     editQueryString,
                     canEdit,
+                    onSchedule,
                 })}
                 data={patients.data}
                 emptyMessage="לא נמצאו מטופלים."

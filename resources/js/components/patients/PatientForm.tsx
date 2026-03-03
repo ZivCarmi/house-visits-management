@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { CalendarField } from "@/components/ui/calendar-field";
 import {
     Field,
     FieldError,
@@ -7,11 +6,6 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
 import {
     Select,
     SelectContent,
@@ -26,7 +20,6 @@ import { FOLLOWUP_FREQUENCY_OPTIONS } from "@/lib/patientLabels";
 import { digitsOnly } from "@/lib/utils";
 import type { FeedingType, FollowUpFrequency } from "@/types/patient";
 import { format } from "date-fns";
-import { he } from "date-fns/locale";
 
 const feedingTypes: FeedingType[] = ["PO", "PEG", "PEJ", "PZ", "TPN"];
 
@@ -183,41 +176,19 @@ export function PatientFormFields({
                         תאריך ביקור אחרון
                         <span className="text-destructive">*</span>
                     </FieldLabel>
-                    <Popover>
-                        <PopoverTrigger className="w-full" asChild>
-                            <Button
-                                variant="outline"
-                                id="last_visit_date"
-                                aria-required={true}
-                                className="justify-start font-normal"
-                                aria-invalid={!!errors.last_visit_date}
-                            >
-                                {data.last_visit_date ? (
-                                    format(data.last_visit_date, "PPP", {
-                                        locale: he,
-                                    })
-                                ) : (
-                                    <span>בחר תאריך</span>
-                                )}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={new Date(data.last_visit_date)}
-                                onSelect={(date) => {
-                                    if (date) {
-                                        setData(
-                                            "last_visit_date",
-                                            format(date, "yyyy-MM-dd"),
-                                        );
-                                    }
-                                }}
-                                locale={he}
-                                required
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <CalendarField
+                        id="last_visit_date"
+                        date={new Date(data.last_visit_date)}
+                        onSelect={(date) => {
+                            if (date) {
+                                setData(
+                                    "last_visit_date",
+                                    format(date, "yyyy-MM-dd"),
+                                );
+                            }
+                        }}
+                        required
+                    />
                     {errors.last_visit_date && (
                         <FieldError>{errors.last_visit_date}</FieldError>
                     )}

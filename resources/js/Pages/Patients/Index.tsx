@@ -2,6 +2,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PatientDialog } from "@/components/patients/PatientDialog";
 import { PatientTable } from "@/components/patients/PatientTable";
 import { PatientTableToolbar } from "@/components/patients/PatientTableToolbar";
+import ScheduleVisitDialog from "@/components/patients/ScheduleVisitDialog";
 import { DEFAULT_SORT_COLUMN, DEFAULT_SORT_DIRECTION } from "@/lib/patientSort";
 import type { PaginatedPatients, Patient } from "@/types/patient";
 import { Head, router, usePage } from "@inertiajs/react";
@@ -11,6 +12,8 @@ type PatientsPageProps = {
     openCreateDialog?: boolean;
     openEditDialog?: boolean;
     editPatient?: Patient;
+    openScheduleDialog?: boolean;
+    schedulePatient?: Patient;
     search?: string;
     sort_column?: string;
     sort_direction?: string;
@@ -24,6 +27,8 @@ export default function Index({
     openCreateDialog = false,
     openEditDialog = false,
     editPatient,
+    openScheduleDialog = false,
+    schedulePatient,
     search,
     sort_column,
     sort_direction,
@@ -34,6 +39,22 @@ export default function Index({
         | undefined;
     const canEdit = user?.email_verified_at != null;
     const dialogOpen = openCreateDialog || (openEditDialog && !!editPatient);
+    const scheduleDialogOpen = openScheduleDialog && !!schedulePatient;
+
+    const handleSchedule = (patient: Patient) => {
+        const params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (sort_column && sort_column !== DEFAULT_SORT_COLUMN)
+            params.set("sort_column", sort_column);
+        if (sort_direction && sort_direction !== DEFAULT_SORT_DIRECTION)
+            params.set("sort_direction", sort_direction);
+        if (filter && filter !== DEFAULT_FILTER) params.set("filter", filter);
+        if (patients.current_page > 1)
+            params.set("page", String(patients.current_page));
+        params.set("schedule", String(patient.id));
+        const q = params.toString();
+        router.visit(`/patients?${q}`, { preserveScroll: true });
+    };
 
     const onCloseDialog = () => {
         const params = new URLSearchParams();
@@ -62,6 +83,7 @@ export default function Index({
                     sort_direction={sort_direction}
                     filter={filter}
                     canEdit={canEdit}
+                    onSchedule={handleSchedule}
                 />
             </div>
 
@@ -69,6 +91,12 @@ export default function Index({
                 open={dialogOpen}
                 patient={editPatient}
                 onClose={onCloseDialog}
+            />
+
+            <ScheduleVisitDialog
+                open={scheduleDialogOpen}
+                onClose={onCloseDialog}
+                patient={schedulePatient ?? null}
             />
         </AuthenticatedLayout>
     );

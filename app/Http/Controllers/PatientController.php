@@ -25,6 +25,12 @@ class PatientController extends Controller
         $user = $request->user();
         $patients = $this->patientService->getPaginatedPatients($user, $filters);
 
+        $schedulePatientId = $request->query('schedule');
+        $schedulePatient = null;
+        if ($schedulePatientId) {
+            $schedulePatient = $user->patients()->find($schedulePatientId);
+        }
+
         return Inertia::render('Patients/Index', [
             'patients' => $patients,
             'search' => $filters->search ?? '',
@@ -32,6 +38,9 @@ class PatientController extends Controller
             'sort_direction' => $filters->sortDirection,
             'filter' => $filters->filter,
             'openCreateDialog' => $request->boolean('create'),
+            'openScheduleDialog' => $schedulePatient !== null,
+            'schedulePatient' => $schedulePatient,
+            'googleCalendarConnected' => $user->googleCalendarToken()->exists(),
         ]);
     }
 
@@ -48,6 +57,7 @@ class PatientController extends Controller
             'sort_direction' => $filters->sortDirection,
             'filter' => $filters->filter,
             'openCreateDialog' => true,
+            'googleCalendarConnected' => $user->googleCalendarToken()->exists(),
         ]);
     }
 
@@ -73,6 +83,7 @@ class PatientController extends Controller
             'filter' => $filters->filter,
             'openEditDialog' => true,
             'editPatient' => $patient,
+            'googleCalendarConnected' => $user->googleCalendarToken()->exists(),
         ]);
     }
 

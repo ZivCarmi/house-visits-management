@@ -85,7 +85,10 @@ export default function AuthenticatedLayout({ children }: PropsWithChildren) {
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end">
+                            <DropdownMenuContent
+                                className="min-w-fit"
+                                align="end"
+                            >
                                 <DropdownMenuLabel>
                                     <div className="flex flex-col space-y-1">
                                         <p className="text-sm leading-none font-medium text-foreground">

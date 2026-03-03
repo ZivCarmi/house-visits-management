@@ -18,24 +18,28 @@ const STAT_CARDS: {
     key: keyof HomeStats;
     label: string;
     icon: LucideIcon;
+    bgColor: string;
     color: string;
 }[] = [
     {
         key: "total_patients",
         label: "סה״כ מטופלים",
         icon: UsersIcon,
+        bgColor: "bg-primary/10",
         color: "text-primary",
     },
     {
         key: "need_visit_this_week",
         label: "מתוכננים השבוע",
         icon: CalendarClockIcon,
+        bgColor: "bg-blue-500/10",
         color: "text-blue-500",
     },
     {
         key: "visited_this_month",
         label: "בוקרו החודש",
         icon: CheckCircleIcon,
+        bgColor: "bg-green-500/10",
         color: "text-green-500",
     },
 ];
@@ -48,25 +52,27 @@ export default function Home({ stats }: HomeProps) {
                 ברוך הבא!
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
-                {STAT_CARDS.map(({ key, label, icon: Icon, color }) => (
-                    <Card key={key} className="p-4">
-                        <CardContent className="flex items-center gap-4 p-0">
-                            <div
-                                className={`flex size-16 shrink-0 items-center justify-center rounded-full border border-current/10`}
-                            >
-                                <Icon className={`size-7 ${color}`} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <p className="mt-0.5 text-sm text-muted-foreground">
-                                    {label}
-                                </p>
-                                <p className="text-2xl font-bold tabular-nums text-foreground">
-                                    {stats[key]}
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                {STAT_CARDS.map(
+                    ({ key, label, icon: Icon, bgColor, color }) => (
+                        <Card key={key} className="p-4">
+                            <CardContent className="flex items-center gap-4 p-0">
+                                <div
+                                    className={`flex size-16 items-center justify-center rounded-full ${bgColor}`}
+                                >
+                                    <Icon className={`size-7 ${color}`} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="mt-0.5 text-sm text-muted-foreground">
+                                        {label}
+                                    </p>
+                                    <p className="text-2xl font-bold tabular-nums text-foreground">
+                                        {stats[key]}
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ),
+                )}
             </div>
         </AuthenticatedLayout>
     );

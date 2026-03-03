@@ -2,12 +2,14 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";
 import DeleteUserForm from "./Partials/DeleteUserForm";
+import GoogleCalendarIntegration from "./Partials/GoogleCalendarIntegration";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
 
 export default function Edit({
     mustVerifyEmail,
     status,
+    googleCalendarConnected = false,
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
     return (
         <AuthenticatedLayout>
@@ -25,6 +27,13 @@ export default function Edit({
 
                     <div className="rounded-xl border p-6">
                         <UpdatePasswordForm className="max-w-md" />
+                    </div>
+
+                    <div className="rounded-xl border p-6">
+                        <GoogleCalendarIntegration
+                            isConnected={googleCalendarConnected}
+                            className="max-w-md"
+                        />
                     </div>
 
                     <div className="rounded-xl border p-6">

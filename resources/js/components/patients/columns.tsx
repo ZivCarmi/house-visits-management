@@ -9,6 +9,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +27,6 @@ import {
     SORT_COLUMN_NEXT_VISIT,
 } from "@/lib/patientSort";
 import { toasts } from "@/lib/toastMessages";
-import { cn } from "@/lib/utils";
 import type { Patient } from "@/types/patient";
 import { formatDate, isOverdue } from "@/utils/dateHelpers";
 import { Link, router } from "@inertiajs/react";
@@ -35,12 +35,12 @@ import {
     ArrowDown,
     ArrowUp,
     ArrowUpDown,
+    CalendarIcon,
     CopyIcon,
     MoreHorizontal,
     PencilIcon,
     TrashIcon,
 } from "lucide-react";
-import { useState } from "react";
 
 function SortableHeader({
     label,
@@ -83,14 +83,16 @@ function ActionsCell({
     patient,
     editQueryString,
     canEdit,
+    onSchedule,
 }: {
     patient: Patient;
     editQueryString: string;
     canEdit: boolean;
+    onSchedule?: (patient: Patient) => void;
 }) {
-    const [deleteOpen, setDeleteOpen] = useState(false);
     const copyId = () => {
         navigator.clipboard.writeText(patient.id_number);
+        toasts.patient.copiedId();
     };
     const handleDelete = () => {
         router.delete(`/patients/${patient.id}`, {
@@ -101,64 +103,69 @@ function ActionsCell({
     };
 
     return (
-        <>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="פתח תפריט">
-                        <MoreHorizontal className="size-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuGroup>
-                        <DropdownMenuItem asChild disabled={!canEdit}>
-                            <Link
-                                href={`/patients/${patient.id}/edit${editQueryString ? `?${editQueryString}` : ""}`}
-                                preserveScroll
-                                disabled={!canEdit}
-                            >
-                                <PencilIcon />
-                                עריכה
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={copyId}>
-                            <CopyIcon />
-                            העתקת ת.ז.
-                        </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                        variant="destructive"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setDeleteOpen(true);
-                        }}
-                        disabled={!canEdit}
-                    >
-                        <TrashIcon />
-                        מחיקה
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>מחיקת מטופל</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            האם למחוק את המטופל? לא ניתן לשחזר פעולה זו.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>ביטול</AlertDialogCancel>
-                        <AlertDialogAction
-                            variant="destructive"
-                            onClick={handleDelete}
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="פתח תפריט">
+                    <MoreHorizontal className="size-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="min-w-fit">
+                <DropdownMenuGroup>
+                    <DropdownMenuItem asChild disabled={!canEdit}>
+                        <Link
+                            href={`/patients/${patient.id}/edit${editQueryString ? `?${editQueryString}` : ""}`}
+                            preserveScroll
+                            disabled={!canEdit}
                         >
+                            <PencilIcon />
+                            עריכה
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={copyId}>
+                        <CopyIcon />
+                        העתקת ת.ז.
+                    </DropdownMenuItem>
+                    {onSchedule && (
+                        <DropdownMenuItem onSelect={() => onSchedule(patient)}>
+                            <CalendarIcon />
+                            תאם ביקור ביומן
+                        </DropdownMenuItem>
+                    )}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                            onSelect={(e) => {
+                                e.preventDefault();
+                            }}
+                            variant="destructive"
+                            disabled={!canEdit}
+                        >
+                            <TrashIcon />
                             מחיקה
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </>
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>מחיקת מטופל</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                האם למחוק את המטופל? לא ניתן לשחזר פעולה זו.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>ביטול</AlertDialogCancel>
+                            <AlertDialogAction
+                                variant="destructive"
+                                onClick={handleDelete}
+                            >
+                                מחיקה
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -168,6 +175,7 @@ export interface PatientTableSortProps {
     onSort: (column: SortColumn, dir: SortDir) => void;
     editQueryString: string;
     canEdit?: boolean;
+    onSchedule?: (patient: Patient) => void;
 }
 
 export function getPatientColumns({
@@ -176,6 +184,7 @@ export function getPatientColumns({
     onSort,
     editQueryString,
     canEdit = true,
+    onSchedule,
 }: PatientTableSortProps): ColumnDef<Patient>[] {
     return [
         {
@@ -260,6 +269,7 @@ export function getPatientColumns({
                     patient={row.original}
                     editQueryString={editQueryString}
                     canEdit={canEdit}
+                    onSchedule={onSchedule}
                 />
             ),
             meta: { className: "min-w-24" },

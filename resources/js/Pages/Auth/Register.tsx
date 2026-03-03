@@ -1,4 +1,4 @@
-import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
 import {
     Card,

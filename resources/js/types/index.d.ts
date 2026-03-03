@@ -18,5 +18,8 @@ export type PageProps<
     flash?: {
         error?: string;
         status?: string;
+        success?: string;
+        eventHtmlLink?: string;
     };
+    googleCalendarConnected?: boolean;
 };

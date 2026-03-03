@@ -9,5 +9,6 @@ export const toasts = {
         createFailed: () => toast.error("יצירת המטופל נכשלה"),
         updateFailed: () => toast.error("עדכון המטופל נכשל"),
         deleteFailed: () => toast.error("לא ניתן למחוק את המטופל."),
+        copiedId: () => toast.success("תעודת הזהות הועתקה"),
     },
 };

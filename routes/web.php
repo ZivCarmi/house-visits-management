@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -26,6 +27,14 @@ Route::middleware('auth')->group(function (): void {
             ['create', 'store', 'edit', 'update', 'destroy'],
             'verified.patients.write'
         );
+
+    Route::prefix('google-calendar')->name('google-calendar.')->group(function (): void {
+        Route::get('connect', [GoogleCalendarController::class, 'connect'])->name('connect');
+        Route::get('callback', [GoogleCalendarController::class, 'callback'])->name('callback');
+        Route::post('events', [GoogleCalendarController::class, 'createEvent'])->name('events.store');
+        Route::delete('disconnect', [GoogleCalendarController::class, 'disconnect'])->name('disconnect');
+        Route::get('status', [GoogleCalendarController::class, 'status'])->name('status');
+    });
 });
 
 require __DIR__.'/auth.php';
