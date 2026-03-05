@@ -42,6 +42,11 @@ class GoogleCalendarController extends Controller
             return redirect()->route('profile.edit')
                 ->with('success', 'יומן Google חובר בהצלחה');
         } catch (\Exception $e) {
+            Log::error('Google Calendar callback failed', [
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
+
             return redirect()->route('profile.edit')
                 ->with('error', 'חיבור יומן Google נכשל: '.$e->getMessage());
         }

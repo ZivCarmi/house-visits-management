@@ -109,16 +109,23 @@ class GoogleCalendarService
 
         if ($token->isExpired()) {
             if (! $token->refresh_token) {
-                throw new \Exception('No refresh token available');
+                $token->delete();
+                throw new \Exception('No refresh token available. Please reconnect Google Calendar.');
             }
 
-            $client->refreshToken($token->refresh_token);
-            $newToken = $client->getAccessToken();
+            $newToken = $client->fetchAccessTokenWithRefreshToken($token->refresh_token);
+
+            if (isset($newToken['error'])) {
+                $token->delete();
+                throw new \Exception('Google Calendar token is no longer valid. Please reconnect: '.$newToken['error']);
+            }
 
             $token->update([
                 'access_token' => $newToken['access_token'],
                 'expires_at' => now()->addSeconds($newToken['expires_in'] ?? 3600),
             ]);
+
+            $client->setAccessToken($newToken);
         }
 
         return $client;
