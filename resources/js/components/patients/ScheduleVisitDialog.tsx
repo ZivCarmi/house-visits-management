@@ -24,9 +24,10 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useScheduleVisitForm } from "@/hooks/useScheduleVisitForm";
+import { CALENDAR_EVENT_COLORS } from "@/lib/calendarEventColors";
 import type { Patient } from "@/types/patient";
 import { usePage } from "@inertiajs/react";
-import { CalendarIcon, Clock2Icon } from "lucide-react";
+import { CalendarIcon, CheckIcon, Clock2Icon } from "lucide-react";
 
 interface ScheduleVisitDialogProps {
     open: boolean;
@@ -52,6 +53,8 @@ export default function ScheduleVisitDialog({
         setEndTime,
         notes,
         setNotes,
+        colorId,
+        setColorId,
         errors,
         processing,
         submit,
@@ -98,18 +101,32 @@ export default function ScheduleVisitDialog({
                         </DialogDescription>
                     </DialogHeader>
                     <FieldGroup>
-                        <Field>
-                            <FieldLabel htmlFor="schedule-patient">
-                                מטופל
-                            </FieldLabel>
-                            <Input
-                                id="schedule-patient"
-                                value={patient?.full_name || ""}
-                                disabled
-                                className="bg-muted"
-                                aria-readonly
-                            />
-                        </Field>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <Field>
+                                <FieldLabel htmlFor="schedule-patient">
+                                    מטופל
+                                </FieldLabel>
+                                <Input
+                                    id="schedule-patient"
+                                    value={patient?.full_name || ""}
+                                    disabled
+                                    className="bg-muted"
+                                    aria-readonly
+                                />
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="schedule-address">
+                                    כתובת
+                                </FieldLabel>
+                                <Input
+                                    id="schedule-address"
+                                    value={patient?.address || ""}
+                                    disabled
+                                    className="bg-muted"
+                                    aria-readonly
+                                />
+                            </Field>
+                        </div>
 
                         <Field aria-invalid={!!errors.start_datetime}>
                             <FieldLabel htmlFor="visit-date">
@@ -184,6 +201,30 @@ export default function ScheduleVisitDialog({
                                 )}
                             </Field>
                         </div>
+
+                        <Field>
+                            <FieldLabel>צבע</FieldLabel>
+                            <div className="flex flex-wrap gap-2" role="group" aria-label="בחירת צבע לאירוע">
+                                {CALENDAR_EVENT_COLORS.map(({ id, background }) => (
+                                    <button
+                                        key={id}
+                                        type="button"
+                                        onClick={() => setColorId(id)}
+                                        className={`flex size-8 items-center justify-center rounded-full border-2 transition-[border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${colorId === id
+                                            ? "border-primary ring-2 ring-primary/20"
+                                            : "border-transparent hover:opacity-90"
+                                            }`}
+                                        style={{ backgroundColor: background }}
+                                        title={CALENDAR_EVENT_COLORS.find((c) => c.id === id)?.label}
+                                        aria-pressed={colorId === id}
+                                    >
+                                        {colorId === id && (
+                                            <CheckIcon className="size-4 text-white drop-shadow-[0_0_1px_rgba(0,0,0,0.8)]" />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </Field>
 
                         <Field aria-invalid={!!errors.notes}>
                             <FieldLabel htmlFor="notes">

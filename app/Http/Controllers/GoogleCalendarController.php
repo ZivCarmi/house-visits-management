@@ -56,7 +56,8 @@ class GoogleCalendarController extends Controller
                 $patient,
                 $request->validated('start_datetime'),
                 $request->validated('end_datetime'),
-                $request->validated('notes')
+                $request->validated('notes'),
+                $request->validated('color_id')
             );
 
             return redirect()->back()

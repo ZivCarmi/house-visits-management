@@ -33,8 +33,8 @@ export function PatientTableToolbar() {
     );
 
     return (
-        <div className="flex w-full flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+        <div className="flex w-full flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <Input
                     type="text"
                     inputMode="numeric"
@@ -42,34 +42,43 @@ export function PatientTableToolbar() {
                     placeholder={SEARCH_PLACEHOLDER}
                     value={searchInput}
                     onChange={onSearchChange}
-                    className="min-w-64 max-w-md"
+                    className="w-full md:w-[250px]"
                 />
-                <PatientFilters filter={filter} onChange={setFilter} />
-                {isFilterActive && (
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        className=""
-                        onClick={() => setFilter("all")}
-                        aria-label="איפוס סינון"
-                    >
-                        איפוס
-                        <X className="size-4" />
-                    </Button>
+                <div
+                    className={`flex gap-2 md:items-center ${isFilterActive ? "flex-row items-center" : "flex-col gap-3 md:flex-row"}`}
+                >
+                    <div className={isFilterActive ? "min-w-0 flex-1" : "w-full"}>
+                        <PatientFilters filter={filter} onChange={setFilter} />
+                    </div>
+                    {isFilterActive && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFilter("all")}
+                            aria-label="איפוס סינון"
+                            className="shrink-0"
+                        >
+                            איפוס
+                            <X className="size-4" />
+                        </Button>
+                    )}
+                </div>
+            </div>
+            <div className="w-full md:w-auto">
+                {isVerified ? (
+                    createButton
+                ) : (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <span className="inline-block w-full md:w-fit">
+                                {createButton}
+                            </span>
+                        </TooltipTrigger>
+                        <TooltipContent>{VERIFY_EMAIL_MESSAGE}</TooltipContent>
+                    </Tooltip>
                 )}
             </div>
-            {isVerified ? (
-                createButton
-            ) : (
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <span className="inline-block w-fit">
-                            {createButton}
-                        </span>
-                    </TooltipTrigger>
-                    <TooltipContent>{VERIFY_EMAIL_MESSAGE}</TooltipContent>
-                </Tooltip>
-            )}
         </div>
     );
 }

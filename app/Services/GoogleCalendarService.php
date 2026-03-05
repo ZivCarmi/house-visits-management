@@ -47,7 +47,7 @@ class GoogleCalendarService
         );
     }
 
-    public function createEvent(Patient $patient, string $startDateTime, string $endDateTime, ?string $notes): array
+    public function createEvent(Patient $patient, string $startDateTime, string $endDateTime, ?string $notes, ?int $colorId = null): array
     {
         $client = $this->getClient();
         $service = new Calendar($client);
@@ -56,9 +56,10 @@ class GoogleCalendarService
         $startRfc3339 = Carbon::parse($startDateTime, $timezone)->toRfc3339String();
         $endRfc3339 = Carbon::parse($endDateTime, $timezone)->toRfc3339String();
 
-        $event = new Event([
+        $eventData = [
             'summary' => "ביקור בית - {$patient->full_name}",
-            'description' => $notes ? "הערות: {$notes}\n\nפרטי המטופל:\nשם: {$patient->full_name}\nטלפון: {$patient->phone}\nכתובת: {$patient->address}" : "פרטי המטופל:\nשם: {$patient->full_name}\nטלפון: {$patient->phone}\nכתובת: {$patient->address}",
+            'description' => $notes ? "הערות: {$notes}\n\nפרטי המטופל:\nשם: {$patient->full_name}\nטלפון: {$patient->phone}" : "פרטי המטופל:\nשם: {$patient->full_name}\nטלפון: {$patient->phone}",
+            'location' => $patient->address ?? '',
             'start' => [
                 'dateTime' => $startRfc3339,
                 'timeZone' => $timezone,
@@ -67,7 +68,13 @@ class GoogleCalendarService
                 'dateTime' => $endRfc3339,
                 'timeZone' => $timezone,
             ],
-        ]);
+        ];
+
+        if ($colorId !== null) {
+            $eventData['colorId'] = (string) $colorId;
+        }
+
+        $event = new Event($eventData);
 
         $createdEvent = $service->events->insert('primary', $event);
 

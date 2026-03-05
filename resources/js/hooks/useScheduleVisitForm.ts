@@ -21,6 +21,7 @@ export function useScheduleVisitForm(
     const [startTime, setStartTime] = useState("09:00");
     const [endTime, setEndTime] = useState("10:00");
     const [notes, setNotes] = useState("");
+    const [colorId, setColorId] = useState<number>(9);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [processing, setProcessing] = useState(false);
 
@@ -31,6 +32,7 @@ export function useScheduleVisitForm(
             setStartTime("09:00");
             setEndTime("10:00");
             setNotes("");
+            setColorId(9);
             setErrors({});
         }
     }, [open, patient]);
@@ -73,6 +75,7 @@ export function useScheduleVisitForm(
                 start_datetime: startDateTimeStr,
                 end_datetime: endDateTimeStr,
                 notes,
+                color_id: colorId,
             },
             {
                 preserveScroll: true,
@@ -98,6 +101,8 @@ export function useScheduleVisitForm(
         setEndTime,
         notes,
         setNotes,
+        colorId,
+        setColorId,
         errors,
         processing,
         submit,

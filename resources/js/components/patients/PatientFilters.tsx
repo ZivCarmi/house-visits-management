@@ -30,7 +30,7 @@ export function PatientFilters({ filter, onChange }: PatientFiltersProps) {
             value={filter}
             onValueChange={(value) => onChange(value as VisitFilter)}
         >
-            <SelectTrigger size="sm" className="min-w-44">
+            <SelectTrigger className="w-full md:w-auto md:min-w-48">
                 <SelectValue>
                     {LABEL}: {selectedLabel}
                 </SelectValue>

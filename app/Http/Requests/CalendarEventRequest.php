@@ -20,6 +20,7 @@ class CalendarEventRequest extends FormRequest
             'start_datetime' => ['required', 'date_format:Y-m-d H:i'],
             'end_datetime' => ['required', 'date_format:Y-m-d H:i', 'after:start_datetime'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'color_id' => ['nullable', 'integer', 'between:1,11'],
         ];
     }
 
@@ -34,6 +35,7 @@ class CalendarEventRequest extends FormRequest
             'end_datetime.date_format' => 'פורמט התאריך והשעה אינו תקין',
             'end_datetime.after' => 'שעת הסיום חייבת להיות אחרי שעת ההתחלה',
             'notes.max' => 'ההערות לא יכולות להכיל יותר מ-500 תווים',
+            'color_id.between' => 'יש לבחור צבע תקין',
         ];
     }
 }
