@@ -117,7 +117,7 @@ class GoogleCalendarService
 
             $token->update([
                 'access_token' => $newToken['access_token'],
-                'expires_at' => now()->addSeconds($newToken['expires_in']),
+                'expires_at' => now()->addSeconds($newToken['expires_in'] ?? 3600),
             ]);
         }
 
