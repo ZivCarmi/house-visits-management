@@ -9,6 +9,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class PatientService
 {
@@ -24,6 +25,27 @@ class PatientService
     public function createPatient(User $user, array $data): Patient
     {
         return $user->patients()->create($data);
+    }
+
+    /**
+     * Create multiple patients in a single transaction. All succeed or all roll back.
+     *
+     * @param  array<int, array<string, mixed>>  $patients  Validated patient data per index
+     * @return int Number of patients created
+     *
+     * @throws \Throwable On first failure (e.g. duplicate id_number), transaction is rolled back
+     */
+    public function createPatientsBulk(User $user, array $patients): int
+    {
+        return (int) DB::transaction(function () use ($user, $patients): int {
+            $count = 0;
+            foreach ($patients as $data) {
+                $user->patients()->create($data);
+                $count++;
+            }
+
+            return $count;
+        });
     }
 
     public function updatePatient(Patient $patient, array $data): bool

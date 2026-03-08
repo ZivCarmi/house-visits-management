@@ -59,7 +59,7 @@ export function useScheduleVisitForm(
         setEndTime(timePlusOneHour(value));
     }, []);
 
-    const submit = (e: React.FormEvent) => {
+    const submit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!patient || !visitDate) return;

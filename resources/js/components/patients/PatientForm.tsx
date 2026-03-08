@@ -30,12 +30,14 @@ export interface PatientFormFieldsProps {
         value: PatientFormData[keyof PatientFormData],
     ) => void;
     errors: Partial<Record<keyof PatientFormData, string>>;
+    onIdNumberBlur?: (value: string) => void;
 }
 
 export function PatientFormFields({
     data,
     setData,
     errors,
+    onIdNumberBlur,
 }: PatientFormFieldsProps) {
     return (
         <FieldGroup>
@@ -78,6 +80,7 @@ export function PatientFormFields({
                                 digitsOnly(event.target.value).slice(0, 9),
                             )
                         }
+                        onBlur={() => onIdNumberBlur?.(data.id_number ?? "")}
                         aria-invalid={!!errors.id_number}
                         aria-required={true}
                         required

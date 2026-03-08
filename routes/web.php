@@ -21,6 +21,10 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::post('patients/bulk', [PatientController::class, 'storeBulk'])
+        ->name('patients.bulk.store')
+        ->middleware('verified.patients.write');
+
     Route::resource('patients', PatientController::class)
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->middlewareFor(

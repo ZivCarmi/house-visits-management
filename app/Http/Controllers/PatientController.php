@@ -6,10 +6,13 @@ namespace App\Http\Controllers;
 
 use App\DTOs\PatientFilterDTO;
 use App\Http\Controllers\Concerns\PreservesQueryParameters;
+use App\Http\Requests\BulkPatientRequest;
 use App\Http\Requests\PatientRequest;
 use App\Models\Patient;
 use App\Services\PatientService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -67,6 +70,31 @@ class PatientController extends Controller
         $this->patientService->createPatient($user, $request->validated());
 
         return redirect()->route('patients.index', $this->preservedQueryParams());
+    }
+
+    public function storeBulk(BulkPatientRequest $request)
+    {
+        $user = $request->user();
+
+        try {
+
+            $createdCount = $this->patientService->createPatientsBulk(
+                $user,
+                $request->validated('patients')
+            );
+
+            return redirect()
+                ->route('patients.index', $this->preservedQueryParams())
+                ->with('success_bulk_count', $createdCount);
+        } catch (QueryException $e) {
+            if ((string) $e->getCode() === '23000') {
+                throw ValidationException::withMessages([
+                    'message' => ['כבר קיים מטופל עם מספר תעודת זהות זהה.'],
+                ]);
+            }
+
+            throw $e;
+        }
     }
 
     public function edit(Request $request, Patient $patient): Response

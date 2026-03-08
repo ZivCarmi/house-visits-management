@@ -3,9 +3,12 @@ import { PatientDialog } from "@/components/patients/PatientDialog";
 import { PatientTable } from "@/components/patients/PatientTable";
 import { PatientTableToolbar } from "@/components/patients/PatientTableToolbar";
 import ScheduleVisitDialog from "@/components/patients/ScheduleVisitDialog";
+import { toasts } from "@/lib/toastMessages";
 import { DEFAULT_SORT_COLUMN, DEFAULT_SORT_DIRECTION } from "@/lib/patientSort";
 import type { PaginatedPatients, Patient } from "@/types/patient";
 import { Head, router, usePage } from "@inertiajs/react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 type PatientsPageProps = {
     patients: PaginatedPatients;
@@ -34,11 +37,26 @@ export default function Index({
     sort_direction,
     filter = DEFAULT_FILTER,
 }: PatientsPageProps) {
-    const user = usePage().props.auth?.user as
+    const pageProps = usePage().props as {
+        auth?: { user?: { email_verified_at?: string | null } };
+        flash?: { success_bulk_count?: number };
+    };
+    const user = pageProps.auth?.user as
         | { email_verified_at?: string | null }
         | undefined;
     const canEdit = user?.email_verified_at != null;
     const dialogOpen = openCreateDialog || (openEditDialog && !!editPatient);
+
+    useEffect(() => {
+        const count = pageProps.flash?.success_bulk_count;
+        if (count != null && count > 0) {
+            if (count === 1) {
+                toasts.patient.created();
+            } else {
+                toast.success(`נוספו ${count} מטופלים.`);
+            }
+        }
+    }, [pageProps.flash?.success_bulk_count]);
     const scheduleDialogOpen = openScheduleDialog && !!schedulePatient;
 
     const handleSchedule = (patient: Patient) => {

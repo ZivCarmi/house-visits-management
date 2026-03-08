@@ -111,7 +111,7 @@ export default function Register() {
                                     onChange={(e) =>
                                         setData("email", e.target.value)
                                     }
-                                    // required
+                                    required
                                 />
                                 <FieldError>{errors.email}</FieldError>
                             </Field>
@@ -135,7 +135,7 @@ export default function Register() {
                                                     e.target.value,
                                                 )
                                             }
-                                            // required
+                                            required
                                         />
                                     </Field>
 
@@ -162,7 +162,7 @@ export default function Register() {
                                                     e.target.value,
                                                 )
                                             }
-                                            // required
+                                            required
                                         />
                                     </Field>
                                 </div>
@@ -170,12 +170,12 @@ export default function Register() {
                                     className=""
                                     errors={
                                         errors.password &&
-                                        Array.isArray(errors.password)
+                                            Array.isArray(errors.password)
                                             ? errors.password.map(
-                                                  (error: string) => ({
-                                                      message: error,
-                                                  }),
-                                              )
+                                                (error: string) => ({
+                                                    message: error,
+                                                }),
+                                            )
                                             : [{ message: errors.password }]
                                     }
                                 />
