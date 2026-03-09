@@ -14,6 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -26,10 +27,15 @@ export function DataTable<TData, TValue>({
     data,
     emptyMessage = "לא נמצאו מטופלים.",
 }: DataTableProps<TData, TValue>) {
+    const [rowSelection, setRowSelection] = useState({})
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        onRowSelectionChange: setRowSelection,
+        state: {
+            rowSelection,
+        },
     });
 
     return (
@@ -44,17 +50,17 @@ export function DataTable<TData, TValue>({
                                     className={
                                         (
                                             header.column.columnDef.meta as
-                                                | { className?: string }
-                                                | undefined
+                                            | { className?: string }
+                                            | undefined
                                         )?.className
                                     }
                                 >
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext(),
-                                          )}
+                                            header.column.columnDef.header,
+                                            header.getContext(),
+                                        )}
                                 </TableHead>
                             ))}
                         </TableRow>
@@ -75,8 +81,8 @@ export function DataTable<TData, TValue>({
                                         className={
                                             (
                                                 cell.column.columnDef.meta as
-                                                    | { className?: string }
-                                                    | undefined
+                                                | { className?: string }
+                                                | undefined
                                             )?.className
                                         }
                                     >

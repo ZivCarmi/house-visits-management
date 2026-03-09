@@ -17,6 +17,7 @@ import {
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -41,6 +42,7 @@ import {
     PencilIcon,
     TrashIcon,
 } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
 
 function SortableHeader({
     label,
@@ -105,12 +107,14 @@ function ActionsCell({
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="פתח תפריט">
+                <Button variant="ghost" size="icon">
+                    <span className="sr-only">פתח תפריט</span>
                     <MoreHorizontal className="size-4" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-fit">
                 <DropdownMenuGroup>
+                    <DropdownMenuLabel>פעולות</DropdownMenuLabel>
                     <DropdownMenuItem asChild disabled={!canEdit}>
                         <Link
                             href={`/patients/${patient.id}/edit${editQueryString ? `?${editQueryString}` : ""}`}
@@ -188,6 +192,25 @@ export function getPatientColumns({
 }: PatientTableSortProps): ColumnDef<Patient>[] {
     return [
         {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                    }
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="בחר הכל"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="בחר מטופל"
+                />
+            ),
+        }, {
             accessorKey: "full_name",
             header: "שם",
             cell: ({ row }) => row.original.full_name,
