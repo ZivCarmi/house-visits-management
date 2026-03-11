@@ -21,6 +21,9 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('patients/locations', [PatientController::class, 'locations'])
+        ->name('patients.locations');
+
     Route::post('patients/bulk', [PatientController::class, 'storeBulk'])
         ->name('patients.bulk.store')
         ->middleware('verified.patients.write');

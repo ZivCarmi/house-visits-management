@@ -26,6 +26,12 @@ class PatientObserver
     public function updating(Patient $patient): void
     {
         $dirty = $patient->getDirty();
+
+        if (array_key_exists('address', $dirty)) {
+            $patient->latitude = null;
+            $patient->longitude = null;
+        }
+
         if (! array_key_exists('last_visit_date', $dirty) && ! array_key_exists('followup_frequency', $dirty)) {
             return;
         }

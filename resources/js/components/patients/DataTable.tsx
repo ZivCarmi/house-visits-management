@@ -5,6 +5,8 @@ import {
     getCoreRowModel,
     useReactTable,
     type ColumnDef,
+    type OnChangeFn,
+    type RowSelectionState,
 } from "@tanstack/react-table";
 import {
     Table,
@@ -20,18 +22,35 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     emptyMessage?: string;
+    /** When provided, table is controlled (selection state lifted to parent) */
+    rowSelection?: RowSelectionState;
+    onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+    /** Return stable row id (e.g. patient.id) so selection keys are meaningful across pages */
+    getRowId?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     emptyMessage = "לא נמצאו מטופלים.",
+    rowSelection: controlledRowSelection,
+    onRowSelectionChange: controlledOnRowSelectionChange,
+    getRowId,
 }: DataTableProps<TData, TValue>) {
-    const [rowSelection, setRowSelection] = useState({})
+    const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
+    const isControlled = controlledRowSelection !== undefined && controlledOnRowSelectionChange !== undefined;
+    const rowSelection = isControlled ? controlledRowSelection! : internalRowSelection;
+    const setRowSelection: OnChangeFn<RowSelectionState> = isControlled
+        ? controlledOnRowSelectionChange!
+        : setInternalRowSelection;
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getRowId: getRowId
+            ? (row: TData, index: number) => getRowId(row) ?? String(index)
+            : undefined,
         onRowSelectionChange: setRowSelection,
         state: {
             rowSelection,

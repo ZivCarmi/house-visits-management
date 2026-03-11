@@ -26,6 +26,8 @@ class Patient extends Model
         'full_name',
         'id_number',
         'address',
+        'latitude',
+        'longitude',
         'phone',
         'feeding_type',
         'last_visit_date',
@@ -35,7 +37,7 @@ class Patient extends Model
     ];
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     protected function casts(): array
     {
@@ -44,6 +46,8 @@ class Patient extends Model
             'followup_frequency' => FollowUpFrequency::class,
             'last_visit_date' => 'date',
             'next_visit_date' => 'date',
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
     }
 

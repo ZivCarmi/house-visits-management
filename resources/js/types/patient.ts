@@ -38,3 +38,22 @@ export interface PaginatedPatients {
     per_page: number;
     total: number;
 }
+
+/** Response shape from GET /patients/locations (for map pins) */
+export interface PatientLocation {
+    id: number;
+    full_name: string;
+    address: string;
+    latitude: number | null;
+    longitude: number | null;
+}
+
+export interface FailedPatient {
+    id: number;
+    full_name: string;
+}
+
+export interface PatientLocationsResponse {
+    located: PatientLocation[];
+    failed: FailedPatient[];
+}

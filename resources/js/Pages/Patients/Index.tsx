@@ -2,13 +2,15 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PatientDialog } from "@/components/patients/PatientDialog";
 import { PatientTable } from "@/components/patients/PatientTable";
 import { PatientTableToolbar } from "@/components/patients/PatientTableToolbar";
+import { PatientsMapDialog } from "@/components/patients/PatientsMapDialog";
 import ScheduleVisitDialog from "@/components/patients/ScheduleVisitDialog";
 import { toasts } from "@/lib/toastMessages";
 import { DEFAULT_SORT_COLUMN, DEFAULT_SORT_DIRECTION } from "@/lib/patientSort";
 import type { PaginatedPatients, Patient } from "@/types/patient";
 import { Head, router, usePage } from "@inertiajs/react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 type PatientsPageProps = {
     patients: PaginatedPatients;
@@ -21,6 +23,7 @@ type PatientsPageProps = {
     sort_column?: string;
     sort_direction?: string;
     filter?: string;
+    googleMapsApiKey?: string | null;
 };
 
 const DEFAULT_FILTER = "all";
@@ -37,6 +40,18 @@ export default function Index({
     sort_direction,
     filter = DEFAULT_FILTER,
 }: PatientsPageProps) {
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+    const [mapDialogOpen, setMapDialogOpen] = useState(false);
+
+    const selectedIds = useMemo(
+        () =>
+            Object.keys(rowSelection)
+                .filter((key) => rowSelection[key])
+                .map(Number)
+                .filter((id) => Number.isInteger(id) && id > 0),
+        [rowSelection]
+    );
+
     const pageProps = usePage().props as {
         auth?: { user?: { email_verified_at?: string | null } };
         flash?: { success_bulk_count?: number };
@@ -93,7 +108,10 @@ export default function Index({
             <Head title="מטופלים" />
 
             <div className="flex flex-col gap-4">
-                <PatientTableToolbar />
+                <PatientTableToolbar
+                    selectedCount={selectedIds.length}
+                    onShowMap={() => setMapDialogOpen(true)}
+                />
                 <PatientTable
                     patients={patients}
                     search={search}
@@ -102,6 +120,9 @@ export default function Index({
                     filter={filter}
                     canEdit={canEdit}
                     onSchedule={handleSchedule}
+                    rowSelection={rowSelection}
+                    onRowSelectionChange={setRowSelection}
+                    getRowId={(row) => String(row.id)}
                 />
             </div>
 
@@ -115,6 +136,12 @@ export default function Index({
                 open={scheduleDialogOpen}
                 onClose={onCloseDialog}
                 patient={schedulePatient ?? null}
+            />
+
+            <PatientsMapDialog
+                open={mapDialogOpen}
+                onClose={() => setMapDialogOpen(false)}
+                patientIds={selectedIds}
             />
         </AuthenticatedLayout>
     );

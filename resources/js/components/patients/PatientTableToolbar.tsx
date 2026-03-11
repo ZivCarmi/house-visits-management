@@ -4,14 +4,22 @@ import { useOpenPatientCreateDialog } from "@/hooks/useOpenPatientCreateDialog";
 import { usePatientFilters } from "@/hooks/usePatientFilters";
 import { usePatientSearch } from "@/hooks/usePatientSearch";
 import { usePage } from "@inertiajs/react";
-import { Plus, X } from "lucide-react";
+import { MapPinIcon, Plus, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { PatientFilters } from "./PatientFilters";
 
 const SEARCH_PLACEHOLDER = "חיפוש לפי ת.ז...";
 const VERIFY_EMAIL_MESSAGE = "יש לאמת את האימייל כדי להוסיף מטופל";
 
-export function PatientTableToolbar() {
+interface PatientTableToolbarProps {
+    selectedCount?: number;
+    onShowMap?: () => void;
+}
+
+export function PatientTableToolbar({
+    selectedCount = 0,
+    onShowMap,
+}: PatientTableToolbarProps = {}) {
     const { filter, setFilter } = usePatientFilters();
     const { searchInput, onSearchChange } = usePatientSearch();
     const openCreateDialog = useOpenPatientCreateDialog();
@@ -65,7 +73,22 @@ export function PatientTableToolbar() {
                     )}
                 </div>
             </div>
-            <div className="w-full md:w-auto">
+            <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap">
+                {onShowMap && (
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={onShowMap}
+                        disabled={selectedCount === 0}
+                        className="gap-1.5"
+                    >
+                        <MapPinIcon className="size-4" />
+                        הצגת מיקומים במפה
+                        {selectedCount > 0 && (
+                            <span className="tabular-nums">({selectedCount})</span>
+                        )}
+                    </Button>
+                )}
                 {isVerified ? (
                     createButton
                 ) : (
