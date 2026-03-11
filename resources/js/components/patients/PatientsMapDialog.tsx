@@ -21,7 +21,7 @@ interface PatientsMapDialogProps {
 
 export function PatientsMapDialog({ open, onClose, patientIds }: PatientsMapDialogProps) {
     const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_GEOCODING_API_KEY as string,
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
     });
 
     const { located, failed, isLoading, error, fetchLocations } = usePatientLocations(patientIds);
