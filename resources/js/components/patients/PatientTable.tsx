@@ -1,13 +1,5 @@
 import type { Patient, PaginatedPatients } from "@/types/patient";
-import { Button } from "@/components/ui/button";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import type { OnChangeFn, RowSelectionState } from "@tanstack/react-table";
 import {
     DEFAULT_SORT_COLUMN,
     DEFAULT_SORT_DIRECTION,
@@ -18,6 +10,7 @@ import {
 import { usePatientListNavigation } from "@/hooks/usePatientListNavigation";
 import { DataTable } from "./DataTable";
 import { getPatientColumns } from "./columns";
+import { TablePagination } from "./TablePagination";
 
 interface PatientTableProps {
     patients: PaginatedPatients;
@@ -27,6 +20,9 @@ interface PatientTableProps {
     filter?: string;
     canEdit?: boolean;
     onSchedule?: (patient: Patient) => void;
+    rowSelection?: RowSelectionState;
+    onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+    getRowId?: (row: Patient) => string;
 }
 
 export function PatientTable({
@@ -37,6 +33,9 @@ export function PatientTable({
     filter = "all",
     canEdit = true,
     onSchedule,
+    rowSelection,
+    onRowSelectionChange,
+    getRowId,
 }: PatientTableProps) {
     const { navigateWithFilters } = usePatientListNavigation();
     const { sortColumn, sortDir } = parseSortParams(
@@ -56,7 +55,6 @@ export function PatientTable({
     const links = patients.links;
     const prevLink = links[0];
     const nextLink = links[links.length - 1];
-
     const { total, current_page, last_page, per_page } = patients;
 
     const editQueryParams = new URLSearchParams();
@@ -68,8 +66,6 @@ export function PatientTable({
     if (filter !== "all") editQueryParams.set("filter", filter);
     if (current_page > 1) editQueryParams.set("page", String(current_page));
     const editQueryString = editQueryParams.toString();
-    const from = total > 0 ? (current_page - 1) * per_page + 1 : 0;
-    const to = total > 0 ? Math.min(current_page * per_page, total) : 0;
 
     return (
         <div className="space-y-4">
@@ -84,63 +80,18 @@ export function PatientTable({
                 })}
                 data={patients.data}
                 emptyMessage="לא נמצאו מטופלים."
+                rowSelection={rowSelection}
+                onRowSelectionChange={onRowSelectionChange}
+                getRowId={getRowId}
             />
-            {total > 0 && (
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm text-muted-foreground">
-                        מציג {from}–{to} מתוך {total}
-                    </p>
-                    <Pagination className="mx-0 w-auto justify-start">
-                        <PaginationContent>
-                            <PaginationItem>
-                                {prevLink?.url ? (
-                                    <PaginationPrevious
-                                        href={prevLink.url}
-                                        text="הקודם"
-                                    />
-                                ) : (
-                                    <Button
-                                        variant="ghost"
-                                        size="default"
-                                        disabled
-                                        className="gap-1 px-2.5 sm:ps-2.5"
-                                    >
-                                        <ChevronRightIcon />
-                                        <span className="hidden sm:block">
-                                            הקודם
-                                        </span>
-                                    </Button>
-                                )}
-                            </PaginationItem>
-                            <PaginationItem>
-                                <span className="px-2 text-sm text-muted-foreground">
-                                    עמוד {current_page} מתוך {last_page}
-                                </span>
-                            </PaginationItem>
-                            <PaginationItem>
-                                {nextLink?.url ? (
-                                    <PaginationNext
-                                        href={nextLink.url}
-                                        text="הבא"
-                                    />
-                                ) : (
-                                    <Button
-                                        variant="ghost"
-                                        size="default"
-                                        disabled
-                                        className="gap-1 px-2.5 sm:pe-2.5"
-                                    >
-                                        <span className="hidden sm:block">
-                                            הבא
-                                        </span>
-                                        <ChevronLeftIcon />
-                                    </Button>
-                                )}
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
-            )}
+            <TablePagination
+                total={total}
+                current_page={current_page}
+                last_page={last_page}
+                per_page={per_page}
+                prevLink={prevLink}
+                nextLink={nextLink}
+            />
         </div>
     );
 }
