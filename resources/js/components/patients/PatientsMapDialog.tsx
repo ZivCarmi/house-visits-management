@@ -19,16 +19,27 @@ interface PatientsMapDialogProps {
     patientIds: number[];
 }
 
-export function PatientsMapDialog({ open, onClose, patientIds }: PatientsMapDialogProps) {
+export function PatientsMapDialog({
+    open,
+    onClose,
+    patientIds,
+}: PatientsMapDialogProps) {
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
     });
 
-    const { located, failed, isLoading, error, fetchLocations } = usePatientLocations(patientIds);
-    const { position: userPosition, isLoading: isLocationLoading } = useCurrentPosition({
-        enabled: open,
-    });
-    const { onMapLoad, defaultCenter, defaultZoom } = useMapBounds(located, userPosition);
+    console.log(import.meta.env);
+
+    const { located, failed, isLoading, error, fetchLocations } =
+        usePatientLocations(patientIds);
+    const { position: userPosition, isLoading: isLocationLoading } =
+        useCurrentPosition({
+            enabled: open,
+        });
+    const { onMapLoad, defaultCenter, defaultZoom } = useMapBounds(
+        located,
+        userPosition,
+    );
     const hasShownFailedToastRef = useRef(false);
 
     useEffect(() => {
@@ -42,7 +53,12 @@ export function PatientsMapDialog({ open, onClose, patientIds }: PatientsMapDial
             hasShownFailedToastRef.current = false;
             return;
         }
-        if (!isLoading && located.length > 0 && failed.length > 0 && !hasShownFailedToastRef.current) {
+        if (
+            !isLoading &&
+            located.length > 0 &&
+            failed.length > 0 &&
+            !hasShownFailedToastRef.current
+        ) {
             toasts.patient.locationsPartiallyFailed(failed);
             hasShownFailedToastRef.current = true;
         }
@@ -60,7 +76,10 @@ export function PatientsMapDialog({ open, onClose, patientIds }: PatientsMapDial
 
     return (
         <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-            <DialogContent className="sm:max-w-3xl" aria-describedby="map-description">
+            <DialogContent
+                className="sm:max-w-3xl"
+                aria-describedby="map-description"
+            >
                 <DialogHeader>
                     <DialogTitle>מיקומי מטופלים במפה</DialogTitle>
                 </DialogHeader>
@@ -68,11 +87,15 @@ export function PatientsMapDialog({ open, onClose, patientIds }: PatientsMapDial
                     {isLoading && (
                         <div className="flex flex-col items-center justify-center gap-2 py-12">
                             <Spinner className="size-8" />
-                            <p className="text-sm text-muted-foreground">טוען מיקומים...</p>
+                            <p className="text-sm text-muted-foreground">
+                                טוען מיקומים...
+                            </p>
                         </div>
                     )}
                     {error && (
-                        <p className="py-6 text-center text-sm text-destructive">{error}</p>
+                        <p className="py-6 text-center text-sm text-destructive">
+                            {error}
+                        </p>
                     )}
                     {waitingForLocation && (
                         <div className="flex flex-col items-center justify-center gap-2 py-12">

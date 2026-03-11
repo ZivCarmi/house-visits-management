@@ -37,6 +37,12 @@ WORKDIR /app
 # Copy full app before composer (scripts may need artisan, etc.)
 COPY . .
 
+# Vite env vars (baked into JS at build time); pass via: docker build --build-arg VITE_GOOGLE_MAPS_API_KEY=... --build-arg VITE_APP_NAME=...
+ARG VITE_APP_NAME
+ARG VITE_GOOGLE_MAPS_API_KEY
+ENV VITE_APP_NAME=$VITE_APP_NAME
+ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist \
     && npm ci && npm run build
 

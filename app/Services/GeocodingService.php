@@ -74,7 +74,7 @@ class GeocodingService
             return $this->fetchFromGoogle($address);
         });
     }
-        
+
     /**
      * Returns coords for a patient — from DB if already stored,
      * otherwise geocodes and persists for next time.
@@ -89,8 +89,6 @@ class GeocodingService
         }
 
         $coords = $this->geocode($patient->address);
-
-        Log::info('resolveCoords', ['coords' => $coords]);
 
         if ($coords) {
             $patient->updateQuietly($coords);
@@ -137,8 +135,6 @@ class GeocodingService
     {
         $location = $data['results'][0]['geometry']['location'];
 
-
-        Log::info('Location', ['location' => $location]);
         return [
             'latitude' => (float) $location['lat'],
             'longitude' => (float) $location['lng'],
