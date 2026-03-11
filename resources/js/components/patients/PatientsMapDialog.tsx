@@ -28,8 +28,6 @@ export function PatientsMapDialog({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
     });
 
-    console.log(import.meta.env);
-
     const { located, failed, isLoading, error, fetchLocations } =
         usePatientLocations(patientIds);
     const { position: userPosition, isLoading: isLocationLoading } =
