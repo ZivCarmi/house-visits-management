@@ -9,6 +9,7 @@ import { DirectionProvider } from "./components/ui/direction";
 import { TooltipProvider } from "./components/ui/tooltip";
 
 createInertiaApp({
+    title: (title) => `${title} - ${import.meta.env.VITE_APP_NAME}`,
     resolve: (name) => {
         const pages = import.meta.glob("./Pages/**/*.tsx", { eager: true });
 

@@ -47,7 +47,7 @@ const STAT_CARDS: {
 export default function Home({ stats }: HomeProps) {
     return (
         <AuthenticatedLayout>
-            <Head title="דף הבית" />
+            <Head title="הבית" />
             <h2 className="text-2xl font-semibold tracking-tight mb-6">
                 ברוך הבא!
             </h2>
