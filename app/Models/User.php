@@ -64,6 +64,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(GoogleCalendarToken::class);
     }
 
+    public function feedbacks(): HasMany
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name.' '.$this->last_name) ?: $this->email;

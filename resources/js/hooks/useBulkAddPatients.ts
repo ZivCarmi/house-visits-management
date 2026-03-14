@@ -1,7 +1,7 @@
 import type { PatientFormData } from "@/hooks/usePatientForm";
 import { defaultFormData } from "@/hooks/usePatientForm";
 import { useForm } from "@inertiajs/react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 const MAX_DRAFTS = 5;
@@ -239,6 +239,23 @@ export function useBulkAddPatients(onClose: () => void) {
         () => drafts.some((d) => isFormFilled(d.data)),
         [drafts],
     );
+
+    useEffect(() => {
+        if (!hasUnsavedChanges) {
+            return;
+        }
+
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = "";
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [hasUnsavedChanges]);
 
     const draftIdsWithErrors = useMemo(
         () => new Set(Object.keys(draftErrors)),

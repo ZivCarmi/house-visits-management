@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import type { LucideIcon } from "lucide-react";
 import { CalendarClockIcon, CheckCircleIcon, UsersIcon } from "lucide-react";
 
@@ -21,35 +21,38 @@ const STAT_CARDS: {
     bgColor: string;
     color: string;
 }[] = [
-    {
-        key: "total_patients",
-        label: "סה״כ מטופלים",
-        icon: UsersIcon,
-        bgColor: "bg-primary/10",
-        color: "text-primary",
-    },
-    {
-        key: "need_visit_this_week",
-        label: "מתוכננים השבוע",
-        icon: CalendarClockIcon,
-        bgColor: "bg-blue-500/10",
-        color: "text-blue-500",
-    },
-    {
-        key: "visited_this_month",
-        label: "בוקרו החודש",
-        icon: CheckCircleIcon,
-        bgColor: "bg-green-500/10",
-        color: "text-green-500",
-    },
-];
+        {
+            key: "total_patients",
+            label: "סה״כ מטופלים",
+            icon: UsersIcon,
+            bgColor: "bg-primary/10",
+            color: "text-primary",
+        },
+        {
+            key: "need_visit_this_week",
+            label: "מתוכננים השבוע",
+            icon: CalendarClockIcon,
+            bgColor: "bg-blue-500/10",
+            color: "text-blue-500",
+        },
+        {
+            key: "visited_this_month",
+            label: "בוקרו החודש",
+            icon: CheckCircleIcon,
+            bgColor: "bg-green-500/10",
+            color: "text-green-500",
+        },
+    ];
 
 export default function Home({ stats }: HomeProps) {
+    const { props } = usePage();
+    const user = props.auth?.user;
+
     return (
         <AuthenticatedLayout>
             <Head title="הבית" />
             <h2 className="text-2xl font-semibold tracking-tight mb-6">
-                ברוך הבא!
+                ברוך הבא, {user.first_name}!
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
                 {STAT_CARDS.map(
