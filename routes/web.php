@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PatientController;
@@ -16,6 +17,8 @@ Route::bind('patient', function (string $value) {
 Route::middleware('auth')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+
+    Route::post('feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
